@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="description" content="Saros Clock — simulatore interattivo della formazione delle eclissi. Ciclo di Saros, regressione nodale, limiti eclittici (Meeus / NASA).">
+<meta name="author" content="Marco Bastoni">
+<title>Saros Clock – Simulatore di Eclissi</title>
+<style>
+  html,body{margin:0;padding:0;background:#04060e;color:#e6e6f0;font-family:system-ui,-apple-system,sans-serif;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  body{width:100vw;height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center}
+  canvas{display:block;touch-action:none}
+  .info{
+    position:fixed;top:10px;left:10px;background:rgba(10,14,28,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+    padding:12px 14px;border-radius:8px;font-size:12px;max-width:320px;
+    border:1px solid rgba(120,160,255,.25);
+    transition:transform .35s ease,opacity .35s ease;
+    max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;z-index:10;
+  }
+  .info.hidden{transform:translateX(calc(-100% - 20px));opacity:0;pointer-events:none}
+  .info.collapsed .src{display:none}
+  .info h2{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .info .btns{display:inline-flex;gap:6px}
+  button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  .info button,.legend button{
+    width:22px;height:22px;border-radius:4px;
+    border:1px solid rgba(255,210,122,.5);background:rgba(255,210,122,.08);
+    color:#ffd27a;font-size:13px;line-height:1;cursor:pointer;padding:0;font-family:system-ui,sans-serif;
+  }
+  .info button:hover,.legend button:hover{background:rgba(255,210,122,.22)}
+  .show-info{
+    position:fixed;top:10px;left:10px;z-index:11;
+    width:28px;height:28px;border-radius:6px;
+    border:1px solid rgba(255,210,122,.6);background:rgba(10,14,28,.85);color:#ffd27a;
+    cursor:pointer;font-size:16px;display:none;
+  }
+  .show-info.visible{display:block}
+  .ctrl{
+    position:fixed;bottom:12px;left:12px;background:rgba(10,14,28,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+    padding:10px 14px;border-radius:8px;font-size:12px;
+    border:1px solid rgba(120,160,255,.25);
+    transition:transform .35s ease,opacity .35s ease;z-index:10;
+  }
+  .ctrl.hidden{transform:translateY(calc(100% + 20px));opacity:0;pointer-events:none}
+  input[type=range]{width:220px;vertical-align:middle}
+  h2{margin:0 0 6px 0;font-size:14px;color:#ffd27a;letter-spacing:.3px}
+  .src{margin-top:8px;font-size:10.5px;opacity:.75;line-height:1.4}
+  b.solar{color:#ffcc33}b.lunar{color:#ff6060}b.none{color:#888}
+  .ctrl button.tbtn{
+    margin-left:6px;width:30px;height:24px;
+    border:1px solid rgba(255,210,122,.55);background:rgba(255,210,122,.10);
+    color:#ffd27a;border-radius:4px;cursor:pointer;font-size:12px;vertical-align:middle;padding:0;
+  }
+  .ctrl button.tbtn:hover{background:rgba(255,210,122,.22)}
+  .legend{
+    position:fixed;top:10px;right:10px;background:rgba(10,14,28,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+    padding:10px 14px;border-radius:8px;font-size:11.5px;max-width:260px;
+    border:1px solid rgba(120,160,255,.25);
+    transition:transform .35s ease,opacity .35s ease;
+    max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;z-index:10;
+  }
+  .legend.hidden{transform:translateX(calc(100% + 20px));opacity:0;pointer-events:none}
+  .legend h3{margin:0 0 6px 0;font-size:13px;color:#ffd27a;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .legend ul{margin:0;padding:0;list-style:none}
+  .legend li{margin:3px 0;line-height:1.35;border-left:2px solid #555;padding-left:6px}
+  .legend li.solar{border-color:#ffcc33}.legend li.lunar{border-color:#ff6060}
+  .legend .d{color:#cfd5e5}.legend .s{color:#ffcc33}.legend .l{color:#ff6060}
+  .legend .empty{opacity:.55;font-style:italic}
+  .legend .cones{margin-top:8px;padding-top:8px;border-top:1px solid rgba(120,160,255,.25);font-size:10.5px;line-height:1.5}
+  .legend .cones .row{display:flex;align-items:center;gap:6px;margin:2px 0;padding:2px 4px 2px 20px;border-radius:3px;user-select:none}
+  .legend .group{margin-top:6px;padding:4px 6px;border-radius:4px;background:rgba(255,255,255,.04);cursor:pointer;user-select:none}
+  .legend .group:hover{background:rgba(255,255,255,.09)}
+  .legend .group>label{display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;font-size:11.5px}
+  .legend .group.sun>label{color:#ffcc33}.legend .group.moon>label{color:#ff6060}
+  .legend .group.off .row{opacity:.35}
+  .legend .group input[type=checkbox]{accent-color:#ffd27a;cursor:pointer}
+  .legend .hide-cones{margin-top:10px;padding-top:8px;border-top:1px solid rgba(120,160,255,.25);display:flex;align-items:center;gap:6px;font-size:11px;color:#cfd5e5;cursor:pointer;user-select:none}
+  .legend .hide-cones input{accent-color:#ffd27a;cursor:pointer}
+  .legend .hide-cones.disabled{opacity:.4;cursor:not-allowed}
+  .legend .hide-cones.disabled input{cursor:not-allowed}
+  .legend .sw{display:inline-block;width:14px;height:14px;border-radius:3px;flex:none;border:1px solid rgba(255,255,255,.2)}
+  .sw-sol-par{background:rgba(255,210,90,.55)}.sw-sol-tot{background:rgba(255,235,80,.95)}
+  .sw-lun-par{background:rgba(255,120,120,.6)}.sw-lun-tot{background:rgba(255,60,60,.95)}
+  .legend .hist-title{margin-top:8px;padding-top:8px;border-top:1px solid rgba(120,160,255,.25);font-size:10.5px;color:#ffd27a;margin-bottom:4px}
+  .legend .list-wrap{max-height:45vh;overflow-y:auto}
+  .show-legend{
+    position:fixed;top:10px;right:10px;z-index:11;
+    width:28px;height:28px;border-radius:6px;
+    border:1px solid rgba(255,210,122,.6);background:rgba(10,14,28,.85);color:#ffd27a;
+    cursor:pointer;font-size:16px;display:none;
+  }
+  .show-legend.visible{display:block}
+  .show-ctrl{
+    position:fixed;bottom:12px;left:12px;z-index:11;
+    width:40px;height:40px;border-radius:6px;
+    border:1px solid rgba(255,210,122,.6);background:rgba(10,14,28,.85);color:#ffd27a;
+    cursor:pointer;font-size:20px;display:none;
+  }
+  .show-ctrl.visible{display:block}
+  .copyright{position:fixed;bottom:10px;right:12px;font-size:10px;color:rgba(255,255,255,.4);font-family:system-ui,sans-serif;pointer-events:none;letter-spacing:.3px}
+
+  @media(max-width:600px){
+    .info,.legend{max-width:calc(100vw - 24px);font-size:13px}
+    .legend .list-wrap{max-height:none}
+    .show-info,.show-legend{width:44px;height:44px;font-size:22px}
+    .info button,.legend button{width:34px;height:34px;font-size:18px}
+    .ctrl{left:8px;bottom:8px;padding:8px 10px;font-size:13px;max-width:calc(100vw - 16px)}
+    .ctrl input[type=range]{width:140px;vertical-align:middle}
+    .ctrl button.tbtn{width:42px;height:36px;font-size:16px}
+    .show-ctrl{width:44px;height:44px;font-size:22px}
+    .copyright{font-size:9px}
+  }
+  @media(min-width:601px) and (max-width:900px){
+    .show-info,.show-legend{width:36px;height:36px;font-size:18px}
+    .info button,.legend button{width:28px;height:28px;font-size:15px}
+    .ctrl button.tbtn{width:36px;height:30px;font-size:14px}
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<button class="show-info" id="showInfoBtn" title="Mostra pannello">☰</button>
+<div class="info" id="infoBox">
+  <h2>
+    <span>Saros Clock</span>
+    <span class="btns">
+      <button id="collapseBtn" title="Comprimi / espandi dati NASA">▾</button>
+      <button id="hideBtn" title="Nascondi pannello a sinistra">◀</button>
+    </span>
+  </h2>
+  <div id="stats"></div>
+  <div class="src">
+    <b>Dati (NASA Eclipse Web Site – F. Espenak, GSFC):</b><br>
+    Mese sinodico: 29.530589 giorni<br>
+    Mese draconico: 27.212221 giorni<br>
+    Anno siderale: 365.25636 giorni<br>
+    Regressione dei nodi: 6798.383 g (~18.613 anni)<br>
+    Limiti eclittici (Meeus, Astron. Alg. cap. 54):<br>
+    Sole parziale: ±18°31′ (18,52°)<br>
+    Sole centrale: ±9°55′ (9,92°)<br>
+    Luna penumbrale: ±17°25′ (17,42°)<br>
+    Luna totale: ±3°45′ (3,75°)<br>
+    Fonti: Meeus "Astronomical Algorithms" 2a ed.,<br>
+    NASA/GSFC Eclipse Web Site (F. Espenak).
+  </div>
+</div>
+
+<button class="show-ctrl" id="showCtrlBtn" title="Mostra controlli">⚙</button>
+<div class="ctrl" id="ctrlBox">
+  Velocità: <input type="range" id="speed" min="1" max="300" value="10">
+  <span id="spd"></span> g/s
+  <button id="pauseBtn" class="tbtn" title="Pausa / Riprendi">⏸</button>
+  <button id="resetBtn" class="tbtn" title="Reset animazione">⟲</button>
+  <button id="hideCtrlBtn" class="tbtn" title="Nascondi controlli">▼</button>
+</div>
+
+<button class="show-legend" id="showLegendBtn" title="Mostra legenda">☰</button>
+<div class="legend" id="legendBox">
+  <h3>
+    <span>Eclissi &amp; limiti</span>
+    <button id="hideLegendBtn" title="Nascondi pannello">▶</button>
+  </h3>
+  <div class="cones">
+    <div style="color:#ffd27a;margin-bottom:4px;">Coni attorno ai nodi</div>
+    <div class="group sun" id="groupSun">
+      <label><input type="checkbox" id="chkSun" checked> Eclissi di Sole</label>
+      <div class="row"><span class="sw sw-sol-par"></span>parziale ±18°31′ (18,52°)</div>
+      <div class="row"><span class="sw sw-sol-tot"></span>centrale ±9°55′ (9,92°)</div>
+    </div>
+    <div class="group moon" id="groupMoon">
+      <label><input type="checkbox" id="chkMoon" checked> Eclissi di Luna</label>
+      <div class="row"><span class="sw sw-lun-par"></span>penumbrale ±17°25′ (17,42°)</div>
+      <div class="row"><span class="sw sw-lun-tot"></span>totale ±3°45′ (3,75°)</div>
+    </div>
+    <label class="hide-cones">
+      <input type="checkbox" id="chkHideCones"> Nascondi coni (solo tratteggio)
+    </label>
+  </div>
+  <div class="hist-title">Ultime 15 eclissi osservate</div>
+  <div class="list-wrap">
+    <ul id="eclipseList"><li class="empty">nessuna ancora</li></ul>
+  </div>
+</div>
+
+<div class="copyright">© Marco Bastoni 2026</div>
+
+<script>
+/* ============================================================
+   SAROS CLOCK – SIMULATORE DI ECLISSI
+   Canvas dinamico: la geometria scala con la finestra.
+   Dati astronomici: NASA Eclipse Web Site (Fred Espenak, GSFC)
+   Limiti eclittici: Meeus, Astronomical Algorithms, 2a ed., cap.54
+   ============================================================ */
+
+const SYN   = 29.530589;
+const DRA   = 27.212221;
+const YEAR  = 365.25636;
+const NODAL = 6798.383;
+const SOLAR_LIM         = 18.52 * Math.PI/180;
+const SOLAR_TOTAL_LIM   =  9.92 * Math.PI/180;
+const LUNAR_LIM         = 17.42 * Math.PI/180;
+const LUNAR_TOTAL_LIM   =  3.75 * Math.PI/180;
+const FADE_DAYS         = 6 * SYN;
+
+const START_DATE = new Date(2026, 0, 1);
+const MESI_ABBR = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+function calendarLabel(days){
+  const d = new Date(START_DATE.getTime() + days*86400000);
+  return `${d.getDate()} ${MESI_ABBR[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+const cvs = document.getElementById('c');
+const ctx = cvs.getContext('2d');
+
+/* ---- dimensioni dinamiche ---- */
+// Tutte le grandezze sono definite come frazioni di S (lato canvas).
+// Riferimento: design originale era 900 px.
+let S, CX, CY, R, MOON_R, SUN_R, SUN_GLOW, NODE_DOT;
+let FS;  // moltiplicatore font
+
+function resize(){
+  const dpr = window.devicePixelRatio || 1;
+  // lato CSS: il minore tra larghezza e altezza della finestra
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const cssSize = Math.min(vw, vh);
+  cvs.style.width  = cssSize + 'px';
+  cvs.style.height = cssSize + 'px';
+  // risoluzione interna (crisp su retina)
+  S = Math.round(cssSize * dpr);
+  cvs.width  = S;
+  cvs.height = S;
+
+  const k = S / 900;  // fattore di scala rispetto al design 900px
+  CX = S / 2;
+  CY = S / 2;
+  R  = 340 * k;
+  MOON_R   = 17 * k;
+  SUN_R    = 22 * k;
+  SUN_GLOW = 85 * k;
+  NODE_DOT = 6  * k;
+
+  // font scaling: su mobile (CSS < 600px) ulteriore boost
+  const mobileBoost = (vw < 600) ? 1.9 : (vw <= 900) ? 1.35 : 1.0;
+  FS = k * mobileBoost;
+
+  // rigenera stelle nella nuova dimensione
+  generateStars();
+}
+
+/* ---------- stelle ---------- */
+let stars = [];
+function generateStars(){
+  stars = [];
+  for(let i=0;i<260;i++){
+    stars.push({
+      x: Math.random()*S,
+      y: Math.random()*S,
+      r: (Math.random()*1.3 + 0.2) * (S/900),
+      a: Math.random()*0.7 + 0.2
+    });
+  }
+}
+function drawStars(){
+  for(const s of stars){
+    ctx.fillStyle = `rgba(255,255,255,${s.a})`;
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,2*Math.PI); ctx.fill();
+  }
+}
+
+resize();
+window.addEventListener('resize', resize);
+// iOS Safari riporta altezza corretta dopo orientationchange con piccolo ritardo
+window.addEventListener('orientationchange', () => setTimeout(resize, 150));
+
+const IS_SMALL = window.innerWidth <= 900;
+
+let t = 0;
+let last = null;
+let prevEclipse = null;
+const events = [];
+const speedEl = document.getElementById('speed');
+const spdEl   = document.getElementById('spd');
+const statsEl = document.getElementById('stats');
+spdEl.textContent = speedEl.value;
+
+/* ---------- pulsanti pannello info ---------- */
+const infoBox      = document.getElementById('infoBox');
+const hideBtn      = document.getElementById('hideBtn');
+const collapseBtn  = document.getElementById('collapseBtn');
+const showInfoBtn  = document.getElementById('showInfoBtn');
+hideBtn.addEventListener('click', () => { infoBox.classList.add('hidden'); showInfoBtn.classList.add('visible'); });
+showInfoBtn.addEventListener('click', () => { infoBox.classList.remove('hidden'); showInfoBtn.classList.remove('visible'); });
+collapseBtn.addEventListener('click', () => {
+  const c = infoBox.classList.toggle('collapsed');
+  collapseBtn.textContent = c ? '▸' : '▾';
+  collapseBtn.title = c ? 'Espandi dati NASA' : 'Comprimi dati NASA';
+});
+
+/* ---------- pausa ---------- */
+let paused = false;
+const pauseBtn = document.getElementById('pauseBtn');
+pauseBtn.addEventListener('click', () => {
+  paused = !paused;
+  pauseBtn.textContent = paused ? '▶' : '⏸';
+  pauseBtn.title = paused ? 'Riprendi' : 'Pausa';
+});
+
+/* ---------- reset ---------- */
+const resetBtn = document.getElementById('resetBtn');
+resetBtn.addEventListener('click', () => {
+  t = 0; prevEclipse = null; events.length = 0; history.length = 0; renderHistory();
+});
+
+/* ---------- legenda eclissi osservate ---------- */
+const history = [];
+const MAX_HIST = 15;
+const eclipseListEl = document.getElementById('eclipseList');
+function pushHistory(ev){
+  history.push(ev);
+  if (history.length > MAX_HIST) history.shift();
+  renderHistory();
+}
+function renderHistory(){
+  if (history.length === 0){ eclipseListEl.innerHTML = '<li class="empty">nessuna ancora</li>'; return; }
+  eclipseListEl.innerHTML = history.map(h => {
+    const cls = h.type === 'solar' ? 'solar' : 'lunar';
+    const kind = (h.type === 'solar' ? 'di Sole' : 'di Luna') + ' ' + h.totality;
+    return `<li class="${cls}"><span class="d">${h.date}</span> — <span class="${cls==='solar'?'s':'l'}">${kind}</span></li>`;
+  }).join('');
+}
+
+/* ---------- mostra/nascondi legenda ---------- */
+const legendBox      = document.getElementById('legendBox');
+const hideLegendBtn  = document.getElementById('hideLegendBtn');
+const showLegendBtn  = document.getElementById('showLegendBtn');
+hideLegendBtn.addEventListener('click', () => { legendBox.classList.add('hidden'); showLegendBtn.classList.add('visible'); });
+showLegendBtn.addEventListener('click', () => { legendBox.classList.remove('hidden'); showLegendBtn.classList.remove('visible'); });
+
+/* ---------- gruppi Sole/Luna e nascondi-coni ---------- */
+const chkSun = document.getElementById('chkSun');
+const chkMoon = document.getElementById('chkMoon');
+const chkHideCones = document.getElementById('chkHideCones');
+const groupSunEl = document.getElementById('groupSun');
+const groupMoonEl = document.getElementById('groupMoon');
+function syncGroupUI(){
+  groupSunEl.classList.toggle('off', !chkSun.checked);
+  groupMoonEl.classList.toggle('off', !chkMoon.checked);
+  const bothOff = !chkSun.checked && !chkMoon.checked;
+  if (bothOff) chkHideCones.checked = false;
+  chkHideCones.disabled = bothOff;
+  chkHideCones.parentElement.classList.toggle('disabled', bothOff);
+  coneState.sun = chkSun.checked; coneState.moon = chkMoon.checked; coneState.hide = chkHideCones.checked;
+}
+chkSun.addEventListener('change', syncGroupUI);
+chkMoon.addEventListener('change', syncGroupUI);
+chkHideCones.addEventListener('change', syncGroupUI);
+
+/* ---------- nascondi/mostra barra controlli ---------- */
+const ctrlBox = document.getElementById('ctrlBox');
+const hideCtrlBtn = document.getElementById('hideCtrlBtn');
+const showCtrlBtn = document.getElementById('showCtrlBtn');
+hideCtrlBtn.addEventListener('click', () => { ctrlBox.classList.add('hidden'); showCtrlBtn.classList.add('visible'); });
+showCtrlBtn.addEventListener('click', () => { ctrlBox.classList.remove('hidden'); showCtrlBtn.classList.remove('visible'); });
+
+/* su mobile/tablet i pannelli laterali partono chiusi */
+if (IS_SMALL) {
+  infoBox.classList.add('hidden'); showInfoBtn.classList.add('visible');
+  legendBox.classList.add('hidden'); showLegendBtn.classList.add('visible');
+}
+
+const mesi = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+              'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+
+/* ---------- mesi sulla circonferenza esterna ---------- */
+function drawMesi(){
+  ctx.save();
+  ctx.font = `bold ${Math.round(14*FS)}px system-ui, sans-serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  const rLabel = R + 38*(S/900);
+  const rTickIn = R - 6*(S/900);
+  const rTickOut = R + 10*(S/900);
+  for(let i=0;i<12;i++){
+    const a = -Math.PI/2 + i*(2*Math.PI/12);
+    ctx.fillStyle = '#ffd27a';
+    ctx.fillText(mesi[i], CX+Math.cos(a)*rLabel, CY+Math.sin(a)*rLabel);
+    ctx.strokeStyle = 'rgba(255,210,122,0.55)'; ctx.lineWidth = 2*(S/900);
+    ctx.beginPath();
+    ctx.moveTo(CX+Math.cos(a)*rTickIn, CY+Math.sin(a)*rTickIn);
+    ctx.lineTo(CX+Math.cos(a)*rTickOut, CY+Math.sin(a)*rTickOut);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawOrbit(){
+  ctx.save();
+  ctx.strokeStyle='rgba(170,195,255,0.55)'; ctx.lineWidth=2*(S/900);
+  ctx.beginPath(); ctx.arc(CX,CY,R,0,2*Math.PI); ctx.stroke();
+  ctx.restore();
+}
+
+function drawSun(){
+  const g = ctx.createRadialGradient(CX,CY,2*(S/900),CX,CY,SUN_GLOW);
+  g.addColorStop(0,'#fff6b0'); g.addColorStop(0.35,'#ffcc33');
+  g.addColorStop(0.75,'rgba(255,140,0,0.25)'); g.addColorStop(1,'rgba(255,120,0,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(CX,CY,SUN_GLOW,0,2*Math.PI); ctx.fill();
+  ctx.fillStyle='#ffe680'; ctx.beginPath(); ctx.arc(CX,CY,SUN_R,0,2*Math.PI); ctx.fill();
+}
+
+/* ---------- coni eclittici ---------- */
+function wedge(a,lim,colStops,RR){
+  const g = ctx.createRadialGradient(CX,CY,40*(S/900),CX,CY,RR);
+  for(const[stop,col]of colStops)g.addColorStop(stop,col);
+  ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(CX,CY);
+  ctx.arc(CX,CY,RR,a-lim,a+lim); ctx.closePath(); ctx.fill();
+}
+const coneState={sun:true,moon:true,hide:false};
+function drawEclipseCones(nodeAngle){
+  const nodes=[nodeAngle,nodeAngle+Math.PI];
+  const RR=R+18*(S/900);
+  ctx.save();
+  for(const a of nodes){
+    if(!coneState.hide){
+      if(coneState.sun){
+        wedge(a,SOLAR_LIM,[[0,'rgba(255,210,90,0)'],[1,'rgba(255,210,90,0.18)']],RR);
+        wedge(a,SOLAR_TOTAL_LIM,[[0,'rgba(255,235,80,0)'],[1,'rgba(255,235,80,0.45)']],RR);
+      }
+      if(coneState.moon){
+        wedge(a,LUNAR_LIM,[[0,'rgba(255,120,120,0)'],[1,'rgba(255,120,120,0.22)']],RR);
+        wedge(a,LUNAR_TOTAL_LIM,[[0,'rgba(255,60,60,0)'],[1,'rgba(255,60,60,0.55)']],RR);
+      }
+    }
+    ctx.strokeStyle='rgba(255,210,90,0.55)'; ctx.lineWidth=1*(S/900);
+    ctx.setLineDash([4*(S/900),4*(S/900)]);
+    ctx.beginPath(); ctx.moveTo(CX,CY);
+    ctx.lineTo(CX+Math.cos(a-SOLAR_LIM)*RR,CY+Math.sin(a-SOLAR_LIM)*RR);
+    ctx.moveTo(CX,CY);
+    ctx.lineTo(CX+Math.cos(a+SOLAR_LIM)*RR,CY+Math.sin(a+SOLAR_LIM)*RR);
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  ctx.restore();
+}
+
+/* ---------- linea dei nodi ---------- */
+function drawNodes(nodeAngle){
+  ctx.save();
+  ctx.strokeStyle='rgba(120,255,180,0.85)'; ctx.lineWidth=2*(S/900);
+  ctx.setLineDash([10*(S/900),7*(S/900)]);
+  const x1=CX+Math.cos(nodeAngle)*R, y1=CY+Math.sin(nodeAngle)*R;
+  const x2=CX-Math.cos(nodeAngle)*R, y2=CY-Math.sin(nodeAngle)*R;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle='#78ffb4';
+  ctx.beginPath(); ctx.arc(x1,y1,NODE_DOT,0,2*Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(x2,y2,NODE_DOT,0,2*Math.PI); ctx.fill();
+  ctx.font=`bold ${Math.round(14*FS)}px serif`; ctx.fillStyle='#b6ffd3';
+  ctx.fillText('\u260A',x1+14*(S/900),y1-10*(S/900));
+  ctx.fillText('\u260B',x2+14*(S/900),y2-10*(S/900));
+
+  const lx=CX+Math.cos(nodeAngle)*R*0.45, ly=CY+Math.sin(nodeAngle)*R*0.45;
+  let rot=nodeAngle;
+  if(rot>Math.PI/2||rot<-Math.PI/2)rot+=Math.PI;
+  ctx.translate(lx,ly); ctx.rotate(rot);
+  ctx.font=`${Math.round(10*FS)}px system-ui, sans-serif`;
+  ctx.fillStyle='rgba(120,255,180,0.85)'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('linea dei nodi',0,-5*(S/900));
+  ctx.restore();
+}
+
+/* ---------- Luna ---------- */
+function drawMoon(x,y,phase,eclipse){
+  if(eclipse==='solar'){
+    const g=ctx.createRadialGradient(x,y,MOON_R*0.6,x,y,MOON_R*4);
+    g.addColorStop(0,'rgba(255,245,180,0.95)'); g.addColorStop(0.35,'rgba(255,205,80,0.55)');
+    g.addColorStop(0.75,'rgba(255,150,0,0.15)'); g.addColorStop(1,'rgba(255,120,0,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,MOON_R*4,0,2*Math.PI); ctx.fill();
+  }
+  ctx.save();
+  if(eclipse==='lunar'){
+    const g=ctx.createRadialGradient(x,y,1*(S/900),x,y,MOON_R);
+    g.addColorStop(0,'#ff6a3c'); g.addColorStop(1,'#8a1a0a');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,MOON_R,0,2*Math.PI); ctx.fill();
+    ctx.strokeStyle='#ffb0a0'; ctx.lineWidth=1.5*(S/900);
+    ctx.beginPath(); ctx.arc(x,y,MOON_R,0,2*Math.PI); ctx.stroke();
+  } else {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(x,y,MOON_R,0,2*Math.PI); ctx.clip();
+    ctx.fillStyle='#1e2130';
+    ctx.fillRect(x-MOON_R-1,y-MOON_R-1,2*MOON_R+2,2*MOON_R+2);
+    if(phase>0.001&&phase<0.999){
+      const e=Math.cos(2*Math.PI*phase);
+      const ellipseW=Math.abs(e)*MOON_R;
+      const waxing=(phase<=0.5);
+      ctx.fillStyle='#f2ecd4';
+      if(waxing){ctx.fillRect(x,y-MOON_R-1,MOON_R+2,2*MOON_R+2);}
+      else{ctx.fillRect(x-MOON_R-1,y-MOON_R-1,MOON_R+2,2*MOON_R+2);}
+      ctx.fillStyle=(phase<0.25||phase>0.75)?'#1e2130':'#f2ecd4';
+      ctx.beginPath(); ctx.ellipse(x,y,ellipseW,MOON_R,0,0,2*Math.PI); ctx.fill();
+    }
+    ctx.restore();
+    ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=1*(S/900);
+    ctx.beginPath(); ctx.arc(x,y,MOON_R,0,2*Math.PI); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* ---------- eclissi persistente ---------- */
+function drawPersistentEclipse(ev,alpha){
+  if(alpha<=0)return;
+  ctx.save(); ctx.globalAlpha=alpha;
+  drawMoon(ev.x,ev.y,ev.phase,ev.type);
+  ctx.globalAlpha=alpha;
+  const dx=ev.x-CX, dy=ev.y-CY;
+  const d=Math.hypot(dx,dy)||1;
+  const off=34*(S/900);
+  const lx=ev.x+(dx/d)*off, ly=ev.y+(dy/d)*off;
+  ctx.font=`bold ${Math.round(12*FS)}px system-ui, sans-serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  const label=ev.totality.toUpperCase();
+  const tw=ctx.measureText(label).width+10*(S/900);
+  const th=18*(S/900);
+  ctx.fillStyle=ev.type==='solar'?'rgba(70,50,0,0.75)':'rgba(70,10,10,0.75)';
+  ctx.strokeStyle=ev.type==='solar'?'#ffcc33':'#ff6060';
+  ctx.lineWidth=1*(S/900);
+  roundRect(lx-tw/2,ly-th/2,tw,th,4*(S/900)); ctx.fill(); ctx.stroke();
+  ctx.fillStyle=ev.type==='solar'?'#ffe680':'#ffb0a0';
+  ctx.fillText(label,lx,ly);
+  ctx.restore();
+}
+
+function roundRect(x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+}
+
+function wrapPi(a){a=a%(2*Math.PI);if(a>Math.PI)a-=2*Math.PI;if(a<-Math.PI)a+=2*Math.PI;return a;}
+function phaseName(p){
+  if(p<0.03||p>0.97)return'Luna nuova';if(p<0.22)return'Crescente';
+  if(p<0.28)return'Primo quarto';if(p<0.47)return'Gibbosa cresc.';
+  if(p<0.53)return'Luna piena';if(p<0.72)return'Gibbosa cal.';
+  if(p<0.78)return'Ultimo quarto';return'Calante';
+}
+
+/* ---------- loop principale ---------- */
+function frame(ts){
+  if(last===null)last=ts;
+  const dt=(ts-last)/1000; last=ts;
+  const speed=parseFloat(speedEl.value);
+  spdEl.textContent=speed;
+  if(!paused)t+=dt*speed;
+
+  ctx.fillStyle='#04060e'; ctx.fillRect(0,0,S,S);
+  drawStars();
+
+  const orbitAngle=-Math.PI/2+2*Math.PI*(t/YEAR);
+  const mx=CX+Math.cos(orbitAngle)*R;
+  const my=CY+Math.sin(orbitAngle)*R;
+  const phase=((t/SYN)%1+1)%1;
+  const nodeAngle=-Math.PI/2-2*Math.PI*(t/NODAL);
+  const diff=wrapPi(orbitAngle-nodeAngle);
+  const distToNode=Math.min(Math.abs(diff),Math.abs(Math.abs(diff)-Math.PI));
+
+  const newDays=Math.min(phase,1-phase)*SYN;
+  const fullDays=Math.abs(phase-0.5)*SYN;
+  let eclipse=null,totality=null;
+  const allowSun=coneState.hide||coneState.sun;
+  const allowMoon=coneState.hide||coneState.moon;
+  if(allowSun&&newDays<1.8&&distToNode<SOLAR_LIM){
+    eclipse='solar'; totality=(distToNode<SOLAR_TOTAL_LIM)?'totale':'parziale';
+  }else if(allowMoon&&fullDays<1.8&&distToNode<LUNAR_LIM){
+    eclipse='lunar'; totality=(distToNode<LUNAR_TOTAL_LIM)?'totale':'parziale';
+  }
+
+  if(eclipse&&!prevEclipse){
+    const ev={type:eclipse,totality:totality,x:mx,y:my,phase:(eclipse==='solar')?0:0.5,bornAt:t,date:calendarLabel(t)};
+    events.push(ev); if(events.length>30)events.shift();
+    pushHistory({type:ev.type,totality:ev.totality,date:ev.date});
+  }
+  prevEclipse=eclipse;
+
+  drawEclipseCones(nodeAngle);
+  drawOrbit();
+  drawMesi();
+  drawNodes(nodeAngle);
+  drawSun();
+
+  for(let i=events.length-1;i>=0;i--){
+    const ev=events[i]; const age=t-ev.bornAt;
+    if(age>FADE_DAYS){events.splice(i,1);continue;}
+    const hold=0.18; let a;
+    if(age/FADE_DAYS<hold)a=1;
+    else a=1-(age/FADE_DAYS-hold)/(1-hold);
+    a=Math.max(0,Math.min(1,a));
+    drawPersistentEclipse(ev,a);
+  }
+
+  drawMoon(mx,my,phase,eclipse);
+
+  const years=(t/YEAR).toFixed(2);
+  const eclHTML=eclipse==='solar'
+    ?`<b class="solar">☀ ECLISSI DI SOLE (${totality})</b>`
+    :eclipse==='lunar'
+      ?`<b class="lunar">● ECLISSI DI LUNA (${totality})</b>`
+      :'<b class="none">—</b>';
+  statsEl.innerHTML=
+    `Tempo simulato: ${t.toFixed(1)} g  (${years} anni)<br>`+
+    `Fase: <b>${phaseName(phase)}</b><br>`+
+    `Distanza angolare dal nodo: ${(distToNode*180/Math.PI).toFixed(1)}°<br>`+
+    `Stato: ${eclHTML}`;
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
