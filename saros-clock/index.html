@@ -8,7 +8,6 @@
 <meta name="description" content="Saros Clock — simulatore interattivo della formazione delle eclissi. Ciclo di Saros, regressione nodale, limiti eclittici (Meeus / NASA).">
 <meta name="author" content="Marco Bastoni">
 <title>Saros Clock – Simulatore di Eclissi</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjUyIj7wn5Ww77iPPC90ZXh0Pjwvc3ZnPg==">
 <style>
   html,body{margin:0;padding:0;background:#04060e;color:#e6e6f0;font-family:system-ui,-apple-system,sans-serif;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   body{width:100vw;height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center}
@@ -206,7 +205,17 @@ const LUNAR_LIM         = 17.42 * Math.PI/180;
 const LUNAR_TOTAL_LIM   =  3.75 * Math.PI/180;
 const FADE_DAYS         = 6 * SYN;
 
-const START_DATE = new Date(2026, 0, 1);
+// 1 novembre 2024 corrisponde a una luna nuova reale (USNO/NASA: novilunio 1 nov 2024, 12:47 UTC).
+// La simulazione è sintetica (phase = t/SYN), quindi a t=0 la fase è 0 (luna nuova) e l'etichetta
+// calendario mostra correttamente l'inizio di novembre.
+const START_DATE = new Date(2024, 10, 1);
+// Offset in giorni dall'inizio dell'anno della START_DATE: serve per allineare la
+// posizione orbitale della Luna sul cerchio orario al mese giusto (a t=0 la Luna
+// deve apparire sul mese di START_DATE, non sempre su gennaio).
+const START_DAY_OFFSET = (function(){
+  const yearStart = new Date(START_DATE.getFullYear(), 0, 1);
+  return Math.round((START_DATE - yearStart) / 86400000);
+})();
 const MESI_ABBR = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
 function calendarLabel(days){
   const d = new Date(START_DATE.getTime() + days*86400000);
@@ -561,7 +570,7 @@ function frame(ts){
   ctx.fillStyle='#04060e'; ctx.fillRect(0,0,S,S);
   drawStars();
 
-  const orbitAngle=-Math.PI/2+2*Math.PI*(t/YEAR);
+  const orbitAngle=-Math.PI/2+2*Math.PI*((t+START_DAY_OFFSET)/YEAR);
   const mx=CX+Math.cos(orbitAngle)*R;
   const my=CY+Math.sin(orbitAngle)*R;
   const phase=((t/SYN)%1+1)%1;
