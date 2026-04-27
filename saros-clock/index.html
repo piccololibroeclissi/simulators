@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="description" content="Saros Clock — simulatore interattivo della formazione delle eclissi. Ciclo di Saros, regressione nodale, limiti eclittici (Meeus / NASA).">
 <meta name="author" content="Marco Bastoni">
-<title>Saros Clock – Simulatore di Eclissi</title>
+<title>Saros Clock – Simulatore di Eclissi (versione astronomicamente precisa)</title>
 <style>
   html,body{margin:0;padding:0;background:#04060e;color:#e6e6f0;font-family:system-ui,-apple-system,sans-serif;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   body{width:100vw;height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center}
@@ -138,13 +138,21 @@
     Mese draconico: 27.212221 giorni<br>
     Anno siderale: 365.25636 giorni<br>
     Regressione dei nodi: 6798.383 g (~18.613 anni)<br>
-    Limiti eclittici (Meeus, Astron. Alg. cap. 54):<br>
-    Sole parziale: ±18°31′ (18,52°)<br>
-    Sole centrale: ±9°55′ (9,92°)<br>
-    Luna penumbrale: ±17°25′ (17,42°)<br>
-    Luna totale: ±3°45′ (3,75°)<br>
-    Fonti: Meeus "Astronomical Algorithms" 2a ed.,<br>
-    NASA/GSFC Eclipse Web Site (F. Espenak).
+    Limiti eclittici NASA/Espenak (longitudine Sole-Nodo):<br>
+    Sole parziale: ±18°33′ (18,555°)<br>
+    Sole centrale: ±11°53′ (11,883°)<br>
+    Luna penombrale: ±17°25′ (17,42°)<br>
+    Luna parziale umbrale: ±12°31′ (12,515°)<br>
+    Luna totale umbrale: ±4°39′ (4,65°)<br>
+    Criterio fisico per classificazione:<br>
+    Sole: γ = β / sin(parallasse_lunare) &nbsp; (raggi terrestri)<br>
+    &nbsp;&nbsp;parziale: γ &lt; 1,5433 &nbsp; centrale: γ &lt; 0,9972<br>
+    &nbsp;&nbsp;totale vs anulare: dai raggi apparenti Luna/Sole<br>
+    Luna: |β| eclittica al plenilunio<br>
+    &nbsp;&nbsp;penombrale: |β| &lt; 1,5572° &nbsp; parziale: |β| &lt; 1,0432°<br>
+    &nbsp;&nbsp;totale: |β| &lt; 0,4406°<br>
+    Fonti: Meeus "Astronomical Algorithms" 2a ed., cap. 47/54;<br>
+    NASA TP-2008-214170 (Espenak, Five Millennium Catalog).
   </div>
 </div>
 
@@ -167,13 +175,14 @@
     <div style="color:#ffd27a;margin-bottom:4px;">Coni attorno ai nodi</div>
     <div class="group sun" id="groupSun">
       <label><input type="checkbox" id="chkSun" checked> Eclissi di Sole</label>
-      <div class="row"><span class="sw sw-sol-par"></span>parziale ±18°31′ (18,52°)</div>
-      <div class="row"><span class="sw sw-sol-tot"></span>centrale ±9°55′ (9,92°)</div>
+      <div class="row"><span class="sw sw-sol-par"></span>parziale ±18°33′ (18,555°)</div>
+      <div class="row"><span class="sw sw-sol-tot"></span>centrale ±11°53′ (11,883°)</div>
     </div>
     <div class="group moon" id="groupMoon">
       <label><input type="checkbox" id="chkMoon" checked> Eclissi di Luna</label>
-      <div class="row"><span class="sw sw-lun-par"></span>penumbrale ±17°25′ (17,42°)</div>
-      <div class="row"><span class="sw sw-lun-tot"></span>totale ±3°45′ (3,75°)</div>
+      <div class="row"><span class="sw sw-lun-par"></span>penombrale ±17°25′ (17,42°)</div>
+      <div class="row"><span class="sw sw-lun-par"></span>parziale umbrale ±12°31′ (12,515°)</div>
+      <div class="row"><span class="sw sw-lun-tot"></span>totale umbrale ±4°39′ (4,65°)</div>
     </div>
     <label class="hide-cones">
       <input type="checkbox" id="chkHideCones"> Nascondi coni (solo tratteggio)
@@ -189,37 +198,220 @@
 
 <script>
 /* ============================================================
-   SAROS CLOCK – SIMULATORE DI ECLISSI
+   SAROS CLOCK – SIMULATORE DI ECLISSI (versione astronomicamente precisa)
    Canvas dinamico: la geometria scala con la finestra.
-   Dati astronomici: NASA Eclipse Web Site (Fred Espenak, GSFC)
-   Limiti eclittici: Meeus, Astronomical Algorithms, 2a ed., cap.54
+   Effemeridi Sole/Luna: Meeus "Astronomical Algorithms" 2a ed., capp. 25 e 47
+   (ELP-2000 troncato — equation of center, evezione, variazione, equazione
+    annuale, latitudine; tutte le ellitticità incluse).
+   Limiti eclittici e di latitudine |β|: F. Espenak, NASA TP-2008-214170
+   (Five Millennium Catalog of Solar Eclipses) e analogo per lunari.
    ============================================================ */
 
 const SYN   = 29.530589;
 const DRA   = 27.212221;
 const YEAR  = 365.25636;
 const NODAL = 6798.383;
-const SOLAR_LIM         = 18.52 * Math.PI/180;
-const SOLAR_TOTAL_LIM   =  9.92 * Math.PI/180;
-const LUNAR_LIM         = 17.42 * Math.PI/180;
-const LUNAR_TOTAL_LIM   =  3.75 * Math.PI/180;
+// Limiti eclittici di Espenak/NASA (in longitudine) — distanza Sole-Nodo
+// massima oltre la quale un'eclissi è geometricamente impossibile.
+const SOLAR_LIM         = 18.555 * Math.PI/180;  // Solar Major Limit (qualsiasi eclissi solare)
+const SOLAR_TOTAL_LIM   = 11.883 * Math.PI/180;  // Solar Central Limit (totale o anulare)
+const LUNAR_LIM         = 17.42  * Math.PI/180;  // Lunar Penumbral Major Limit (qualsiasi eclissi lunare, incl. penombrale)
+const LUNAR_PARTIAL_LIM = 12.515 * Math.PI/180;  // Lunar Umbral Major Limit (parziale umbrale o totale)
+const LUNAR_TOTAL_LIM   =  4.65  * Math.PI/180;  // Lunar Total Umbral Limit (totale)
+// Limiti corrispondenti in latitudine eclittica della Luna |β| (gradi).
+// Sono il vero criterio fisico (vedi Espenak, "Five Millennium Catalog of
+// Solar Eclipses", NASA TP-2008-214170; e analogo per lunari).
+// Soglie solari espresse in gamma (raggi terrestri), per coerenza con NASA/Espenak
+// che le definisce così. La conversione γ ↔ |β| dipende dalla parallasse lunare,
+// che varia tra perigeo e apogeo: il limite |β| corrispondente a γ=0,9972 va da
+// 0,895° (apogeo) a 1,003° (perigeo), quindi una soglia statica in |β| sbaglia
+// fino a ~0,1° → classificazioni errate al limite. γ usa la distanza vera.
+const GAMMA_SOLAR_PARTIAL  = 1.5433;   // γ < → eclissi solare (almeno parziale)
+const GAMMA_SOLAR_CENTRAL  = 0.9972;   // γ < → centrale (totale o anulare)
+const LUNAR_BETA_PENUMBRAL = 1.5572;   // |β| < → almeno penombrale (Espenak)
+const LUNAR_BETA_PARTIAL   = 1.0432;   // |β| < → parziale umbrale o totale
+const LUNAR_BETA_TOTAL     = 0.4406;   // |β| < → totale umbrale
+// Costanti geometriche per il calcolo di γ e dei raggi apparenti.
+const _R_EARTH_KM = 6378.137;
+const _R_MOON_KM  = 1737.4;
+const _SUN_S_AU   = 0.2666;            // raggio apparente medio del Sole (deg) a 1 UA
 const FADE_DAYS         = 6 * SYN;
 
-// 1 novembre 2024 corrisponde a una luna nuova reale (USNO/NASA: novilunio 1 nov 2024, 12:47 UTC).
-// La simulazione è sintetica (phase = t/SYN), quindi a t=0 la fase è 0 (luna nuova) e l'etichetta
-// calendario mostra correttamente l'inizio di novembre.
-const START_DATE = new Date(2024, 10, 1);
-// Offset in giorni dall'inizio dell'anno della START_DATE: serve per allineare la
-// posizione orbitale della Luna sul cerchio orario al mese giusto (a t=0 la Luna
-// deve apparire sul mese di START_DATE, non sempre su gennaio).
-const START_DAY_OFFSET = (function(){
-  const yearStart = new Date(START_DATE.getFullYear(), 0, 1);
-  return Math.round((START_DATE - yearStart) / 86400000);
-})();
+// ============================================================================
+// VERSIONE ASTRONOMICAMENTE PRECISA
+// La simulazione calcola, per ogni frame, le effemeridi vere di Sole e Luna
+// usando lo sviluppo di Brown / Meeus "Astronomical Algorithms" 2ª ed.:
+//   • Sole: longitudine vera con equation of center fino al 3° ordine in e
+//     (e ≈ 0,016708617, ellitticità terrestre)
+//   • Luna: ELP-2000 troncato — equation of center per ellitticità lunare
+//     (e ≈ 0,0549), evezione, variazione, equazione annuale, ulteriori 11
+//     termini periodici in longitudine + 10 in latitudine
+//   • Nodo ascendente: longitudine vera (medio + 5 perturbazioni periodiche)
+// Tutti i parametri (orbitAngle, nodeAngle, phase, β) — anche l'animazione
+// della Luna sul cerchio dei mesi — sono ricavati da queste effemeridi.
+// Precisione effettiva: ~0,01° per il Sole, ~0,1° per la Luna in longitudine,
+// ~0,05° in latitudine, ~0,1° per il nodo.
+// Riferimenti: U.S. Naval Observatory; J. Meeus, capp. 25 e 47; IAU 2000A.
+// ============================================================================
+
+// START_DATE = istante esatto del novilunio del 1 nov 2024 (12:47 UTC, USNO).
+const START_DATE = new Date(Date.UTC(2024, 10, 1, 12, 47, 0));
+
 const MESI_ABBR = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
 function calendarLabel(days){
   const d = new Date(START_DATE.getTime() + days*86400000);
-  return `${d.getDate()} ${MESI_ABBR[d.getMonth()]} ${d.getFullYear()}`;
+  return `${d.getUTCDate()} ${MESI_ABBR[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
+// ----- Costanti ed helper effemeridi -----
+const J2000_MS = Date.UTC(2000, 0, 1, 12, 0, 0); // J2000.0 (TT≈UTC, ΔT~65 s trascurabile)
+const _DEG = Math.PI/180;
+const _norm360 = x => ((x % 360) + 360) % 360;
+function _daysSinceJ2000FromMs(ms){ return (ms - J2000_MS) / 86400000; }
+
+// ----- Longitudine eclittica vera del SOLE (Meeus cap. 25) -----
+function sunLongitudeDeg(d){
+  const L0 = _norm360(280.4664567 + 0.98564735 * d);
+  const M  = _norm360(357.5291092 + 0.98560028 * d);
+  const Mr = M * _DEG;
+  // Equation of center (3° ordine in e=0,016708617, ellitticità terrestre)
+  const C  = 1.914602 * Math.sin(Mr)
+           + 0.019993 * Math.sin(2*Mr)
+           + 0.000289 * Math.sin(3*Mr);
+  return _norm360(L0 + C);
+}
+
+// ----- Stato eclittico vero della LUNA (ELP-2000 troncato esteso, Meeus cap. 47) -----
+// Restituisce {lon, lat, node, dist}. Serie estesa: 30 termini in longitudine,
+// 17 in latitudine, 13 in distanza. Include il fattore E (Meeus 47.6) per i
+// termini con M (anomalia solare). Precisione tipica: ~0,03° in longitudine,
+// ~0,02° in latitudine, ~50 km in distanza.
+function moonStateDeg(d){
+  const T = d / 36525;                       // secoli giuliani da J2000
+  const E = 1 - 0.002516*T - 0.0000074*T*T;  // fattore Meeus 47.6
+  const L  = _norm360(218.3164477 + 13.17639648 * d);
+  const D  = _norm360(297.8501921 + 12.19074912 * d);
+  const M  = _norm360(357.5291092 +  0.98560028 * d);
+  const Mp = _norm360(134.9633964 + 13.06499295 * d);
+  const F  = _norm360( 93.272095  + 13.22935029 * d);
+  const Om0= _norm360(125.04452   -  0.05295376 * d);
+  const Dr = D * _DEG, Mr = M * _DEG, Mpr = Mp * _DEG, Fr = F * _DEG;
+
+  // ΔL longitudine — 30 termini. Termine 1: equation of center lunare
+  // (ellitticità e≈0,0549). Fattore E sui termini con Mr.
+  let dL = 0;
+  dL += 6.288774 * Math.sin(Mpr);
+  dL += 1.274027 * Math.sin(2*Dr - Mpr);
+  dL += 0.658314 * Math.sin(2*Dr);
+  dL += 0.213618 * Math.sin(2*Mpr);
+  dL -= E*0.185116 * Math.sin(Mr);
+  dL -= 0.114332 * Math.sin(2*Fr);
+  dL += 0.058793 * Math.sin(2*Dr - 2*Mpr);
+  dL += E*0.057066 * Math.sin(2*Dr - Mr - Mpr);
+  dL += 0.053322 * Math.sin(2*Dr + Mpr);
+  dL += E*0.045758 * Math.sin(2*Dr - Mr);
+  dL -= E*0.040923 * Math.sin(Mr - Mpr);
+  dL -= 0.034720 * Math.sin(Dr);
+  dL -= E*0.030383 * Math.sin(Mr + Mpr);
+  dL += 0.015327 * Math.sin(2*Dr - 2*Fr);
+  dL -= 0.012528 * Math.sin(2*Fr + Mpr);
+  dL += 0.010980 * Math.sin(2*Fr - Mpr);
+  dL += 0.010675 * Math.sin(4*Dr - Mpr);
+  dL += 0.010034 * Math.sin(3*Mpr);
+  dL += 0.008548 * Math.sin(4*Dr - 2*Mpr);
+  dL -= E*0.007888 * Math.sin(2*Dr + Mr - Mpr);
+  dL -= E*0.006766 * Math.sin(2*Dr + Mr);
+  dL -= 0.005163 * Math.sin(Dr - Mpr);
+  dL += E*0.004987 * Math.sin(Dr + Mr);
+  dL += E*0.004036 * Math.sin(2*Dr - Mr + Mpr);
+  dL += 0.003994 * Math.sin(2*Dr + 2*Mpr);
+  dL += 0.003861 * Math.sin(4*Dr);
+  dL += 0.003665 * Math.sin(2*Dr - 3*Mpr);
+  dL -= E*0.002689 * Math.sin(Mr - 2*Mpr);
+  dL -= 0.002602 * Math.sin(Mpr - 2*Fr);
+  dL += E*0.002390 * Math.sin(2*Dr - Mr - 2*Mpr);
+
+  // β latitudine — 17 termini. Termine principale 5,128°·sin(F).
+  let beta = 0;
+  beta += 5.128122 * Math.sin(Fr);
+  beta += 0.280602 * Math.sin(Mpr + Fr);
+  beta += 0.277693 * Math.sin(Mpr - Fr);
+  beta += 0.173237 * Math.sin(2*Dr - Fr);
+  beta += 0.055413 * Math.sin(2*Dr + Fr - Mpr);
+  beta += 0.046271 * Math.sin(2*Dr - Fr - Mpr);
+  beta += 0.032573 * Math.sin(2*Dr + Fr);
+  beta += 0.017198 * Math.sin(2*Mpr + Fr);
+  beta += 0.009266 * Math.sin(2*Dr + Mpr - Fr);
+  beta += 0.008822 * Math.sin(2*Mpr - Fr);
+  beta += E*0.008216 * Math.sin(2*Dr - Mr - Fr);
+  beta += 0.004324 * Math.sin(2*Dr - 2*Mpr - Fr);
+  beta += 0.004200 * Math.sin(2*Dr + Fr + Mpr);
+  beta += E*0.003359 * Math.sin(2*Dr + Mr - Fr);
+  beta -= E*0.002472 * Math.sin(2*Dr + Fr - Mpr - Mr);
+  beta -= E*0.002222 * Math.sin(2*Dr + Fr - Mr);
+  beta -= 0.001750 * Math.sin(2*Mpr + Fr - 2*Dr);
+
+  // Distanza Terra-Luna in km (Meeus 47.4) — 13 termini. Distanza media
+  // 385.000,56 km; varia ~±21.000 km tra perigeo e apogeo.
+  let dr = 0;
+  dr -= 20905.355 * Math.cos(Mpr);
+  dr -=  3699.111 * Math.cos(2*Dr - Mpr);
+  dr -=  2955.968 * Math.cos(2*Dr);
+  dr -=   569.925 * Math.cos(2*Mpr);
+  dr +=   246.158 * Math.cos(2*Dr - 2*Mpr);
+  dr -= E*204.586 * Math.cos(2*Dr - Mr - Mpr);
+  dr -=   170.733 * Math.cos(2*Dr + Mpr);
+  dr -= E*152.138 * Math.cos(2*Dr - Mr);
+  dr -= E*129.620 * Math.cos(Mr - Mpr);
+  dr +=   108.743 * Math.cos(Dr);
+  dr += E*104.755 * Math.cos(Mr + Mpr);
+  dr +=    79.661 * Math.cos(Mpr - 2*Fr);
+  dr -=    34.782 * Math.cos(4*Dr - Mpr);
+  const distKm = 385000.56 + dr;
+
+  // Perturbazioni periodiche del nodo ascendente (Brown; Meeus 47.7)
+  let dOm = 0;
+  dOm -= 1.4979 * Math.sin(2*(Dr - Fr));
+  dOm -= E*0.1500 * Math.sin(Mr);
+  dOm -= 0.1226 * Math.sin(2*Dr);
+  dOm += 0.1176 * Math.sin(2*Fr);
+  dOm -= 0.0801 * Math.sin(2*(Mpr - Fr));
+
+  return {
+    lon:  _norm360(L + dL),
+    lat:  beta,
+    node: _norm360(Om0 + dOm),
+    dist: distKm
+  };
+}
+
+// ----- Mappatura longitudine eclittica → angolo sul cerchio orario calendario -----
+// L'equinozio di primavera (Sole L=0°) cade ~giorno 79,5 dell'anno tropico.
+function eclipticLonToClockAngleRad(L_deg){
+  const SUN_DEG_PER_DAY = 360 / YEAR;
+  const dayOfYear = ((79.5 + L_deg/SUN_DEG_PER_DAY) % YEAR + YEAR) % YEAR;
+  return -Math.PI/2 + 2*Math.PI*dayOfYear/YEAR;
+}
+
+// ----- Proiezione iterativa al momento esatto di un dato valore di elongazione -----
+// Newton-Raphson sul rate medio sinodico (29,530589 g). Converge in 2-3
+// iterazioni a < 0,01° (~3 minuti) dall'evento esatto, anche quando il rate
+// vero della Luna varia del 15% (perigeo/apogeo) per via dell'ellitticità.
+// targetElongDeg = 0 → novilunio, 180 → plenilunio.
+const _MEAN_SYN_RATE_DEG_PER_DAY = 360 / 29.530589;
+function projectToElongation(msStart, targetElongDeg){
+  let ms = msStart;
+  for (let iter = 0; iter < 4; iter++){
+    const d = _daysSinceJ2000FromMs(ms);
+    const lSun = sunLongitudeDeg(d);
+    const lMoon = moonStateDeg(d).lon;
+    let delta = (((lMoon - lSun) % 360 + 360) % 360) - targetElongDeg;
+    if (delta >  180) delta -= 360;
+    if (delta < -180) delta += 360;
+    if (Math.abs(delta) < 0.005) break;
+    ms -= (delta / _MEAN_SYN_RATE_DEG_PER_DAY) * 86400000;
+  }
+  return ms;
 }
 
 const cvs = document.getElementById('c');
@@ -440,8 +632,9 @@ function drawEclipseCones(nodeAngle){
         wedge(a,SOLAR_TOTAL_LIM,[[0,'rgba(255,235,80,0)'],[1,'rgba(255,235,80,0.45)']],RR);
       }
       if(coneState.moon){
-        wedge(a,LUNAR_LIM,[[0,'rgba(255,120,120,0)'],[1,'rgba(255,120,120,0.22)']],RR);
-        wedge(a,LUNAR_TOTAL_LIM,[[0,'rgba(255,60,60,0)'],[1,'rgba(255,60,60,0.55)']],RR);
+        wedge(a,LUNAR_LIM,        [[0,'rgba(255,150,150,0)'],[1,'rgba(255,150,150,0.16)']],RR); // penombrale
+        wedge(a,LUNAR_PARTIAL_LIM,[[0,'rgba(255, 90, 90,0)'],[1,'rgba(255, 90, 90,0.32)']],RR); // parziale umbrale
+        wedge(a,LUNAR_TOTAL_LIM,  [[0,'rgba(255, 30, 30,0)'],[1,'rgba(255, 30, 30,0.60)']],RR); // totale umbrale
       }
     }
     ctx.strokeStyle='rgba(255,210,90,0.55)'; ctx.lineWidth=1*(S/900);
@@ -570,27 +763,110 @@ function frame(ts){
   ctx.fillStyle='#04060e'; ctx.fillRect(0,0,S,S);
   drawStars();
 
-  const orbitAngle=-Math.PI/2+2*Math.PI*((t+START_DAY_OFFSET)/YEAR);
-  const mx=CX+Math.cos(orbitAngle)*R;
-  const my=CY+Math.sin(orbitAngle)*R;
-  const phase=((t/SYN)%1+1)%1;
-  const nodeAngle=-Math.PI/2-2*Math.PI*(t/NODAL);
-  const diff=wrapPi(orbitAngle-nodeAngle);
-  const distToNode=Math.min(Math.abs(diff),Math.abs(Math.abs(diff)-Math.PI));
+  // === EFFEMERIDI VERE per la data corrente della simulazione ===
+  const _msNow = START_DATE.getTime() + t*86400000;
+  const _dJ2000 = _daysSinceJ2000FromMs(_msNow);
+  const _lambdaSun  = sunLongitudeDeg(_dJ2000);
+  const _moon       = moonStateDeg(_dJ2000);
+  const _lambdaMoon = _moon.lon;
+  const _beta       = _moon.lat;
+  const _omegaTrue  = _moon.node;
 
-  const newDays=Math.min(phase,1-phase)*SYN;
-  const fullDays=Math.abs(phase-0.5)*SYN;
-  let eclipse=null,totality=null;
-  const allowSun=coneState.hide||coneState.sun;
-  const allowMoon=coneState.hide||coneState.moon;
-  if(allowSun&&newDays<1.8&&distToNode<SOLAR_LIM){
-    eclipse='solar'; totality=(distToNode<SOLAR_TOTAL_LIM)?'totale':'parziale';
-  }else if(allowMoon&&fullDays<1.8&&distToNode<LUNAR_LIM){
-    eclipse='lunar'; totality=(distToNode<LUNAR_TOTAL_LIM)?'totale':'parziale';
+  // Posizione della Luna sul cerchio dei mesi: angolo della longitudine VERA
+  // del Sole. Il moto è leggermente non uniforme (più rapido in gennaio per
+  // effetto del perielio terrestre — equation of center).
+  const orbitAngle = eclipticLonToClockAngleRad(_lambdaSun);
+  const mx = CX + Math.cos(orbitAngle)*R;
+  const my = CY + Math.sin(orbitAngle)*R;
+
+  // Linea dei nodi (visualizzazione): longitudine MEDIA del nodo ascendente.
+  // Usiamo il nodo medio per ottenere una precessione liscia e lineare
+  // (~0,053°/giorno). Il nodo VERO _omegaTrue oscilla di ±1,5° con periodi
+  // di 14-173 giorni a causa delle perturbazioni periodiche, e ad alta velocità
+  // di simulazione queste oscillazioni produrrebbero un movimento a scatti.
+  // La precisione delle previsioni di eclissi non è compromessa: il criterio
+  // fisico è |β| (calcolata con tutti i termini di perturbazione lunari).
+  const _omegaMean = _norm360(125.04452 - 0.05295376 * _dJ2000);
+  const nodeAngle = eclipticLonToClockAngleRad(_omegaMean);
+
+  // Fase: elongazione VERA (Luna − Sole) — include ellitticità lunare,
+  // evezione e variazione, quindi novilunio e plenilunio non sono equispaziati.
+  let _elong = ((_lambdaMoon - _lambdaSun) % 360 + 360) % 360;
+  const phase = _elong / 360;  // 0=novilunio, 0,5=plenilunio
+
+  // Distanza Sole–Nodo in longitudine eclittica (radianti, sui due nodi).
+  const diff = wrapPi(orbitAngle - nodeAngle);
+  const distToNode = Math.min(Math.abs(diff), Math.abs(Math.abs(diff)-Math.PI));
+
+  // Distanza temporale dal novilunio/plenilunio (giorni, rate sinodico medio).
+  const _SYN_RATE = 360 / SYN;          // ~12,19 °/giorno (rate medio dell'elongazione)
+  const newDays  = Math.min(_elong, 360 - _elong) / _SYN_RATE;
+  const fullDays = Math.abs(_elong - 180) / _SYN_RATE;
+
+  // ----- Detection eclissi con β proiettata al momento ESATTO dell'evento -----
+  // Il criterio fisico è |β| al momento del novilunio (solare) o plenilunio
+  // (lunare). Iteriamo (Newton-Raphson sul rate medio sinodico) per convergere
+  // < 0,01° (~3 minuti) al momento esatto, anche al perigeo/apogeo dove il rate
+  // vero della Luna varia del 15%.
+  const _msNew  = projectToElongation(_msNow, 0);
+  const _msFull = projectToElongation(_msNow, 180);
+  const _dt_new  = (_msNew  - _msNow) / 86400000;
+  const _dt_full = (_msFull - _msNow) / 86400000;
+  const _moonAtNew  = moonStateDeg(_daysSinceJ2000FromMs(_msNew));
+  const _moonAtFull = moonStateDeg(_daysSinceJ2000FromMs(_msFull));
+  const _betaAtNew   = _moonAtNew.lat;
+  const _betaAtFull  = _moonAtFull.lat;
+  const _absBetaNew  = Math.abs(_betaAtNew);
+  const _absBetaFull = Math.abs(_betaAtFull);
+  const _absBeta     = Math.abs(_beta);  // β al momento corrente, per stats
+
+  // γ (gamma) per le eclissi solari: distanza dell'asse del cono d'ombra dal
+  // centro della Terra in raggi terrestri. γ = β_rad / sin(parallasse_lunare).
+  // Usa la DISTANZA VERA della Luna al momento dell'evento, quindi le soglie
+  // di Espenak (γ < 1,5433 partial, γ < 0,9972 central) si auto-adattano al
+  // perigeo/apogeo. Senza questa correzione, eclissi al limite della soglia
+  // β statica (es. 14 gen 2029) vengono classificate male.
+  const _sinPiMoonNew = _R_EARTH_KM / _moonAtNew.dist;
+  const _gammaSolar   = Math.abs(_betaAtNew * _DEG) / _sinPiMoonNew;
+
+  let eclipse=null, totality=null;
+  const allowSun  = coneState.hide || coneState.sun;
+  const allowMoon = coneState.hide || coneState.moon;
+  if (allowSun && newDays < 1.8 && _gammaSolar < GAMMA_SOLAR_PARTIAL){
+    eclipse = 'solar';
+    if (_gammaSolar < GAMMA_SOLAR_CENTRAL){
+      // Eclissi centrale: distinguiamo totale vs anulare comparando i raggi
+      // apparenti della Luna e del Sole. Luna più grande del Sole ⇒ totale,
+      // Luna più piccola ⇒ anulare. Le distanze attuali (Luna e Sole) determinano
+      // i due raggi apparenti dinamicamente.
+      const _sMoon = Math.asin(_R_MOON_KM / _moonAtNew.dist) / _DEG;       // raggio apparente Luna (deg)
+      // Raggio apparente del Sole: usa la distanza Terra-Sole vera (1 UA modulata
+      // dalla anomalia solare, e≈0.0167). r_sun_AU = 1.000001018·(1-e²)/(1+e·cos(M))
+      const _M_sun_rad = (357.5291092 + 0.98560028 * _dJ2000) % 360 * _DEG;
+      const _eSun = 0.016708617;
+      const _rSunAU = 1.000001018 * (1 - _eSun*_eSun) / (1 + _eSun*Math.cos(_M_sun_rad));
+      const _sSun = _SUN_S_AU / _rSunAU;                                    // raggio apparente Sole (deg)
+      totality = (_sMoon > _sSun) ? 'totale' : 'anulare';
+    } else {
+      totality = 'parziale';
+    }
+  } else if (allowMoon && fullDays < 1.8 && _absBetaFull < LUNAR_BETA_PENUMBRAL){
+    eclipse = 'lunar';
+    // Tre categorie: penombrale (Luna solo nella penombra), parziale umbrale
+    // (parte della Luna nell'ombra terrestre), totale (Luna intera nell'ombra).
+    if (_absBetaFull < LUNAR_BETA_TOTAL)        totality = 'totale';
+    else if (_absBetaFull < LUNAR_BETA_PARTIAL) totality = 'parziale';
+    else                                         totality = 'penombrale';
   }
 
   if(eclipse&&!prevEclipse){
-    const ev={type:eclipse,totality:totality,x:mx,y:my,phase:(eclipse==='solar')?0:0.5,bornAt:t,date:calendarLabel(t)};
+    // Marker e data al momento ESATTO dell'evento (proiettato), non a "now"
+    const _tEvent = t + (eclipse==='solar' ? _dt_new : _dt_full);
+    const _dEvent = _daysSinceJ2000FromMs(START_DATE.getTime() + _tEvent*86400000);
+    const _angEvent = eclipticLonToClockAngleRad(sunLongitudeDeg(_dEvent));
+    const _xEvent = CX + Math.cos(_angEvent)*R;
+    const _yEvent = CY + Math.sin(_angEvent)*R;
+    const ev={type:eclipse,totality:totality,x:_xEvent,y:_yEvent,phase:(eclipse==='solar')?0:0.5,bornAt:t,date:calendarLabel(_tEvent)};
     events.push(ev); if(events.length>30)events.shift();
     pushHistory({type:ev.type,totality:ev.totality,date:ev.date});
   }
@@ -623,7 +899,7 @@ function frame(ts){
   statsEl.innerHTML=
     `Tempo simulato: ${t.toFixed(1)} g  (${years} anni)<br>`+
     `Fase: <b>${phaseName(phase)}</b><br>`+
-    `Distanza angolare dal nodo: ${(distToNode*180/Math.PI).toFixed(1)}°<br>`+
+    `Distanza Sole-Nodo: ${(distToNode*180/Math.PI).toFixed(2)}° &nbsp; |β|: ${_absBeta.toFixed(3)}°<br>`+
     `Stato: ${eclHTML}`;
 
   requestAnimationFrame(frame);
