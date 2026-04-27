@@ -9,33 +9,41 @@
 <style>
 html,body{margin:0;padding:0;overflow:hidden;background:#000;color:#fff;font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 canvas{display:block;touch-action:none}
-#info{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.72);padding:12px 14px;border-radius:8px;font-size:12px;max-width:360px;max-height:calc(100vh - 80px);overflow-y:auto;line-height:1.45;backdrop-filter:blur(4px);z-index:10;-webkit-overflow-scrolling:touch}
+#info{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.72);padding:12px 14px 12px 60px;border-radius:8px;font-size:12px;max-width:360px;max-height:calc(100vh - 240px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;box-sizing:border-box;line-height:1.45;backdrop-filter:blur(4px);z-index:10;-webkit-overflow-scrolling:touch;touch-action:pan-y;pointer-events:auto}
 #info::-webkit-scrollbar{width:6px}
 #info::-webkit-scrollbar-track{background:rgba(255,255,255,.05);border-radius:3px}
 #info::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:3px}
 #info h3{margin:0 0 6px;font-size:13px;color:#ffd860}
 #info h4{margin:8px 0 4px;font-size:12px;color:#ffaa88}
 #info small{color:#9cf}
-#ctrl{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,.72);padding:10px 12px;border-radius:8px;font-size:12px;backdrop-filter:blur(4px);z-index:10;max-width:calc(100vw - 20px);box-sizing:border-box}
+#ctrl{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,.72);padding:10px 12px 10px 60px;border-radius:8px;font-size:12px;backdrop-filter:blur(4px);z-index:10;max-width:calc(100vw - 20px);box-sizing:border-box}
 #ctrl input[type=range]{width:200px;vertical-align:middle}
 button{background:#1f2937;color:#fff;border:1px solid #3b4657;padding:5px 10px;border-radius:4px;cursor:pointer;margin:2px;font-size:12px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 button:hover{background:#2b3646}
 button.active{background:#1a6b3a;border-color:#3ddc84;color:#fff}
-#status{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.72);padding:10px 12px;border-radius:8px;font-size:12px;min-width:220px;backdrop-filter:blur(4px);z-index:10}
+#status{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.72);padding:10px 60px 10px 12px;border-radius:8px;font-size:12px;min-width:220px;backdrop-filter:blur(4px);z-index:10}
 #status b{color:#ffd860}
 .note{color:#8aa}
 .spec{display:inline-block;width:14px;height:14px;border-radius:2px;vertical-align:middle;margin-right:4px}
 #copyright{position:absolute;bottom:10px;right:10px;font-size:11px;color:rgba(255,255,255,.45);pointer-events:none;z-index:5}
 .legend{font-size:11px;margin-top:6px;line-height:1.4}
 #mobileHint{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.85);color:#fff;padding:14px 18px;border-radius:10px;font-size:13px;text-align:center;z-index:100;pointer-events:none;border:1px solid rgba(255,255,255,.15);line-height:1.5;max-width:80vw}
-/* === MOBILE: pannelli compatti e collassabili === */
+/* === Toggle buttons (sempre visibili, qualsiasi risoluzione) === */
+.mobile-toggle{display:block;position:absolute;z-index:25;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.78);border:1px solid #556;color:#ffd860;font-size:18px;line-height:40px;text-align:center;padding:0;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);-webkit-tap-highlight-color:transparent;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5);transition:background .15s,opacity .15s}
+.mobile-toggle:hover{background:rgba(40,40,60,.9)}
+.mobile-toggle:active{transform:scale(0.9);background:rgba(40,40,60,.95)}
+#toggleInfo{top:10px;left:10px}
+#toggleCtrl{bottom:10px;left:10px}
+#toggleStatus{top:10px;right:10px}
+.panel-hidden{display:none!important}
+/* === MOBILE / risoluzioni piccole: pannelli compatti === */
 @media (max-width: 900px){
-  #info{max-width:calc(100vw - 20px);max-height:45vh;font-size:11px;padding:8px 10px}
+  #info{max-width:calc(100vw - 20px);max-height:calc(100vh - 250px);font-size:11px;padding:8px 10px 8px 60px}
   #info h3{font-size:12px}
   #info h4{font-size:11px}
-  #status{min-width:0;max-width:calc(100vw - 20px);font-size:11px;padding:6px 8px;top:auto;bottom:auto;right:10px;top:10px}
-  #ctrl{font-size:11px;padding:8px 10px;left:5px;right:5px;bottom:5px;max-width:calc(100vw - 10px)}
-  #ctrl input[type=range]{width:calc(100vw - 60px);max-width:260px}
+  #status{min-width:0;max-width:calc(100vw - 20px);font-size:11px;padding:6px 60px 6px 8px;top:auto;bottom:auto;right:10px;top:10px}
+  #ctrl{font-size:11px;padding:8px 10px 8px 60px;left:5px;right:5px;bottom:5px;max-width:calc(100vw - 10px)}
+  #ctrl input[type=range]{width:calc(100vw - 110px);max-width:260px}
   button{padding:8px 12px;font-size:12px;min-height:32px}
   #copyright{font-size:9px}
   #mobileHint{display:block;animation:fadeOut 5s 2s forwards}
@@ -45,22 +53,26 @@ button.active{background:#1a6b3a;border-color:#3ddc84;color:#fff}
 </head>
 <body>
 <div id="mobileHint">👆 1 dito: ruota camera<br>🤏 pinch 2 dita: zoom</div>
+<button class="mobile-toggle" id="toggleInfo" onclick="togglePanel('info')" aria-label="Mostra/nascondi info">ℹ️</button>
+<button class="mobile-toggle" id="toggleCtrl" onclick="togglePanel('ctrl')" aria-label="Mostra/nascondi controlli">🎮</button>
+<button class="mobile-toggle" id="toggleStatus" onclick="togglePanel('status')" aria-label="Mostra/nascondi stato">📊</button>
 <div id="info">
 <h3 onclick="document.getElementById('infoBody').style.display=document.getElementById('infoBody').style.display==='none'?'block':'none'" style="cursor:pointer;user-select:none">🌕 Eclissi di Luna — scattering atmosferico <span style="font-size:11px;color:#888">▼ clicca</span></h3>
 <div id="infoBody" style="display:none">
-<small>Simulazione fisica della rifrazione e dello scattering della luce solare attraverso l'atmosfera terrestre durante un'eclissi lunare totale. Scala 1 unità = 1 000 km.</small><br>
+<small>Simulazione fisica della rifrazione e dello scattering della luce solare attraverso l'atmosfera terrestre durante un'eclissi lunare totale. </small><br>
+<small><b>NOTA:</b> il cono di penombra terrestre qui non è rappresentato.</small><br>
 <br>
 <b>Atmosfera terrestre (NOAA U.S. Standard Atmosphere 1976):</b><br>
 • Troposfera: 0–12 km (≈80% della massa)<br>
-• Stratosfera: 12–50 km (include strato O₃ 15–35 km)<br>
+• Stratosfera: 12–50 km (include strato di ozono O₃ 15–35 km)<br>
 • Mesosfera: 50–85 km<br>
 • Termosfera: 85–400 km (aurorale)<br>
 <br>
 <h4>Scomposizione della luce solare</h4>
 <div class="legend">
-<span class="spec" style="background:#4488ff"></span><b>Diffuso Rayleigh</b> (λ⁻⁴): blu/violetto disperso lateralmente → tramonto blu nell'alta atmosfera<br>
+<span class="spec" style="background:#4488ff"></span><b>Diffusione Rayleigh</b>: blu/violetto disperso lateralmente → tramonto blu nell'alta atmosfera<br>
 <span class="spec" style="background:#ff4422"></span><b>Rifratto</b>: rosso/arancio devia ~35' attraversando la troposfera → illumina l'umbra<br>
-<span class="spec" style="background:#66ddcc"></span><b>Assorbito O₃ (banda Chappuis)</b>: l'ozono assorbe il rosso 500–700 nm → crea la frangia turchese sulla Luna<br>
+<span class="spec" style="background:#66ddcc"></span><b>Assorbito O₃</b>: l'ozono assorbe il rosso 500–700 nm → crea la frangia turchese sulla Luna<br>
 </div>
 <br>
 <b>Dati NASA / Planetary Fact Sheet:</b><br>
@@ -71,10 +83,8 @@ button.active{background:#1a6b3a;border-color:#3ddc84;color:#fff}
 • Distanza Terra–Sole: 149 597 870 km<br>
 • Rifrazione orizzontale: 34,5' (Bennett, 1982)<br>
 • Ingrandimento umbra (Danjon): 1,02 ×<br>
-• Picco assorbimento O₃ Chappuis: 603 nm<br>
+• Picco assorbimento O₃: 603 nm<br>
 <br>
-<b>Scala Danjon dell'eclissi totale (L=0→4):</b><br>
-L=0 molto scura • L=2 rosso scuro • L=3 rosso mattone (tipica) • L=4 arancio rame<br>
 <br>
 <b>Controlli:</b> trascina col mouse per orbitare, rotella per zoom.<br>
 </div>
@@ -126,8 +136,59 @@ L=0 molto scura • L=2 rosso scuro • L=3 rosso mattone (tipica) • L=4 aranc
 <div id="copyright">&copy; Marco Bastoni, 2026 | v1.0 — Lunar Eclipse Atmospheric Scattering</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// Impedisci lo scroll sul pannello info
-document.getElementById('info').addEventListener('wheel', function(e){ e.stopPropagation(); }, {passive: false});
+// Permetti lo scroll nativo dentro al pannello info, ma evita che la rotella
+// venga catturata dai listener della scena (zoom camera). Usiamo passive:true
+// così il browser scrolla immediatamente senza attendere il listener.
+(function(){
+  const info = document.getElementById('info');
+  // Wheel: blocca solo la propagazione (lo scroll nativo del div avviene comunque)
+  info.addEventListener('wheel', function(e){ e.stopPropagation(); }, {passive: true});
+  // Touch: blocca la propagazione per evitare che il canvas catturi il gesto;
+  // NON chiamiamo preventDefault, così lo scroll del pannello funziona su mobile.
+  info.addEventListener('touchstart', function(e){ e.stopPropagation(); }, {passive: true});
+  info.addEventListener('touchmove',  function(e){ e.stopPropagation(); }, {passive: true});
+  info.addEventListener('touchend',   function(e){ e.stopPropagation(); }, {passive: true});
+})();
+
+// ==== Pannelli: toggle show/hide (touch e risoluzioni piccole) ====
+function togglePanel(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  const isHidden = el.classList.contains('panel-hidden');
+  el.classList.toggle('panel-hidden', !isHidden);
+  const capId = id.charAt(0).toUpperCase() + id.slice(1);
+  const btn = document.getElementById('toggle' + capId);
+  if (btn) btn.style.opacity = isHidden ? '1' : '0.5';
+}
+window.togglePanel = togglePanel;
+
+// Auto-collasso: nascondi pannelli di default su schermi piccoli o touch device
+(function(){
+  const isSmartphone = window.matchMedia('(max-width:480px)').matches;
+  const isSmallHeight = window.matchMedia('(max-height:700px)').matches;
+  const isTablet = window.matchMedia('(max-width:1024px) and (min-width:481px)').matches;
+  if (isSmartphone) {
+    // Su smartphone: solo controlli visibili, nascondi info e status
+    const _inf = document.getElementById('info'); if (_inf) _inf.classList.add('panel-hidden');
+    const _st = document.getElementById('status'); if (_st) _st.classList.add('panel-hidden');
+    const tInf = document.getElementById('toggleInfo'); if (tInf) tInf.style.opacity = '0.5';
+    const tSt = document.getElementById('toggleStatus'); if (tSt) tSt.style.opacity = '0.5';
+  } else if (isTablet || isSmallHeight) {
+    // Su tablet o schermi bassi: nascondi solo il pannello info di default
+    const _inf = document.getElementById('info'); if (_inf) _inf.classList.add('panel-hidden');
+    const tInf = document.getElementById('toggleInfo'); if (tInf) tInf.style.opacity = '0.5';
+  }
+})();
+
+// Impedisci che touch sui pannelli propaghi al canvas (zoom/orbit)
+['info','ctrl','status'].forEach(function(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('touchstart', function(e){ e.stopPropagation(); }, {passive: true});
+  el.addEventListener('touchmove',  function(e){ e.stopPropagation(); }, {passive: true});
+  el.addEventListener('touchend',   function(e){ e.stopPropagation(); }, {passive: true});
+  el.addEventListener('wheel',      function(e){ e.stopPropagation(); }, {passive: true});
+});
 
 // ==== Costanti fisiche — fonti NASA Planetary Fact Sheet + NOAA U.S. Standard Atmosphere 1976 ====
 const R_EARTH = 6.371;            // raggio Terra (migliaia di km)
