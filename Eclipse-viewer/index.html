@@ -4015,6 +4015,8 @@ function renderScene(){
 
   updateReadout(sm,obsc,mag,totale);
   updateShadowMap(time,sm);
+  // pannello "Studio grani di Baily" dal vivo: ridisegna ogni frame coi grani appena calcolati da drawBeads
+  { const hb=$('baily'); if(hb&&hb.classList.contains('on')) drawBaily(); }
 }
 function totaleVicina(obsc){ // glow solo se la totalità/il massimo profondo è in corso o imminente
   return S.loc.total_begin? true : obsc>0.97;
@@ -4163,15 +4165,15 @@ function drawBeads(ctx,sm,pS,pM,rs,rm,mag){
   const t=S.t, time=A.MakeTime(new Date(t)), obs=new A.Observer(S.obs.lat,S.obs.lon,0);
   const or=moonOrient(time,obs,sm.eqM,pM)||{vN:[0,-1],vE:[-1,0],P:0};
   let lib={elon:0,elat:0}; try{lib=topoLib(time,obs);}catch(e){}
-  if(!(sm.rM>sm.rS))return;                        // grani solo per eclissi totali
+  if(!(sm.rM>sm.rS)){BAILY.live={t:S.t,beads:false};return;}   // grani solo per eclissi totali
   const rmA=sm.rM*3600, rsA=sm.rS*3600, sepA=sm.sep*3600;
   const margin0=sepA-(rmA-rsA);                    // protrusione del Sole al contatto (arcsec)
-  if(margin0>9.5 || margin0<-6)return;             // finestra: include onset cromosfera (~99.78%) e i grani
+  if(margin0>9.5 || margin0<-6){BAILY.live={t:S.t,beads:false};return;}   // finestra: onset cromosfera + grani
   const krel=rmA/R_MOON_M;                         // arcsec per metro
   const th0=Math.atan2(pS[1]-pM[1],pS[0]-pM[0]);   // direzione del Sole scoperto
   const pxA=rm/rmA;                                // px per arcsec
   const win=22*RAD, step=0.18*RAD, N=Math.round(2*win/step)+1;
-  const vis=new Array(N), rin=new Array(N), rout=new Array(N), ang=new Array(N);
+  const vis=new Array(N), rin=new Array(N), rout=new Array(N), ang=new Array(N), paA=new Array(N), relA=new Array(N);
   for(let n=0;n<N;n++){
     const a=-win+n*step; ang[n]=th0+a;
     const dx=Math.cos(th0+a), dy=Math.sin(th0+a);
@@ -4183,7 +4185,10 @@ function drawBeads(ctx,sm,pS,pM,rs,rm,mag){
     vis[n]=(rho-rmA)-reliefA;                        // fotosfera visibile (>0 = grano)
     rin[n]=rm+reliefA*pxA;                           // lembo lunare locale (px) -> FORMA del grano
     rout[n]=rho*pxA;                                 // bordo del Sole (px)
+    paA[n]=pa; relA[n]=reliefA;                      // -> alimenta il pannello "Studio grani di Baily"
   }
+  // i grani calcolati QUI (stesso rivelatore) sono passati al pannello flottante, che li ridisegna dal vivo
+  BAILY.live={t:S.t, beads:true, N, pa:paA, rel:relA, vis};
   // CROMOSFERA: arco rosso sottile lungo il LEMBO LUNARE reale, solo nella regione di contatto
   // (dove il bordo del Sole e' al limbo) e solo negli ultimi istanti -> niente archi spuri; la Luna la copre/scopre.
   const obscNow=obscuration(sm.rS,sm.rM,sm.sep);
@@ -4338,9 +4343,9 @@ function bailyGeom(ev){
   if(!ev||!ev.time||!ev.time.date) return null;
   const obs=new A.Observer(S.obs.lat,S.obs.lon,0);
   const t=A.MakeTime(new Date(ev.time.date.getTime()+(S.skyDt||0)));
-  const eqS=A.Equator(A.Body.Sun,t,obs,true,true), eqM=A.Equator(A.Body.Moon,t,obs,true,true);
-  const rsA=Math.asin(R_SUN_KM/(eqS.dist*KM_AU))*DEG*3600;
-  const rmA=Math.asin(R_MOON_KM/(eqM.dist*KM_AU))*DEG*3600;
+  const sm=sunMoonNow(t,obs); applyEspenakGeometry(sm);    // STESSA geometria del simulatore (raggi/sep di Espenak)
+  const eqS=sm.eqS, eqM=sm.eqM;
+  const rsA=sm.rS*3600, rmA=sm.rM*3600, sep=sm.sep*3600;   // arcsec; rmA e sep = Espenak, come renderScene
   const d1=eqS.dec*RAD,d2=eqM.dec*RAD, da=(eqS.ra-eqM.ra)*15*RAD;
   const skyPA=(Math.atan2(Math.cos(d1)*Math.sin(da), Math.cos(d2)*Math.sin(d1)-Math.sin(d2)*Math.cos(d1)*Math.cos(da))*DEG+360)%360;
   let Paxis=0; try{const ax=A.RotationAxis(A.Body.Moon,t),da3=(ax.ra-eqM.ra)*15*RAD,dp=ax.dec*RAD;
@@ -4350,15 +4355,15 @@ function bailyGeom(ev){
   // celeste-Nord NON è verticale nel cielo reale, è inclinato di q. Verificato: q==tilt(vN) di moonOrient.
   let q=0; try{const lst=A.SiderealTime(t)+S.obs.lon/15, H=(lst-eqM.ra)*15*RAD;
     q=Math.atan2(Math.sin(H), Math.tan(S.obs.lat*RAD)*Math.cos(d2)-Math.sin(d2)*Math.cos(H))*DEG;}catch(e){}
-  return {rsA,rmA,skyPA,Paxis,le:lib.elon,lb:lib.elat,q};
+  return {rsA,rmA,sep,skyPA,Paxis,le:lib.elon,lb:lib.elat,q};
 }
 function bailyReliefArcsec(thetaDeg, g){      // rilievo del lembo (arcsec) al PA-cielo theta
   const pa=thetaDeg-g.Paxis;                  // PA selenografico
   const off=(g.le*Math.sin(pa*RAD)-g.lb*Math.cos(pa*RAD)+0.26);
   return lolaRelief(pa,off)*g.rmA/R_MOON_M;
 }
-function bailySolarDev(thetaDeg, g){          // (rho_Sole - rmA) in arcsec: bordo del Sole, tangente al contatto
-  const sep=g.rmA-g.rsA, a=((thetaDeg-g.skyPA+540)%360-180)*RAD;
+function bailySolarDev(thetaDeg, g){          // (rho_Sole - rmA) in arcsec: bordo del Sole alla separazione CORRENTE
+  const sep=(g.sep!=null?g.sep:g.rmA-g.rsA), a=((thetaDeg-g.skyPA+540)%360-180)*RAD;
   const root=g.rsA*g.rsA - sep*sep*Math.sin(a)*Math.sin(a);
   if(root<0) return null;
   return sep*Math.cos(a)+Math.sqrt(root) - g.rmA;
@@ -4400,58 +4405,63 @@ function drawBaily(){
   cv.width=Wc*dpr; cv.height=Hc*dpr; const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.clearRect(0,0,Wc,Hc);
   if(!BAILY.data){ ctx.fillStyle='#889'; ctx.font='12px system-ui'; ctx.fillText('dati non disponibili',20,30); return; }
-  const gP=BAILY.data.gP, g2=BAILY.data.g2, g3=BAILY.data.g3;
-  const cx=Wc/2, cy=Hc*0.5, R0=Math.min(Wc,Hc)*0.31;
-  let mx=0; for(let th=0;th<360;th+=0.5){ const r=Math.abs(bailyReliefArcsec(th,gP)); if(r>mx)mx=r; }
-  mx=Math.max(mx,0.5); const EXAG=(R0*0.30)/mx;                 // px per arcsec (radiale)
-  const exFactor=Math.round(EXAG*gP.rmA/R0);                    // fattore di esagerazione vs disco reale
+  const gN=bailyGeom({time:{date:new Date(S.t)}});                 // geometria al TEMPO CORRENTE (dal vivo)
+  if(!gN){ ctx.fillStyle='#889'; ctx.font='12px system-ui'; ctx.fillText('dati non disponibili',20,30); return; }
+  const g2=BAILY.data&&BAILY.data.g2, g3=BAILY.data&&BAILY.data.g3; // solo per le etichette di direzione C2/C3
+  const cx=Wc/2, cy=Hc*0.5;
+  // SCALA FISSA ×55 vs disco reale (gobbe confrontabili fra eclissi); RAGGIO ADATTIVO allo spazio.
+  const EXAG_FIXED=55;
+  let mx=0; for(let th=0;th<360;th+=0.5){ const r=Math.abs(bailyReliefArcsec(th,gN)); if(r>mx)mx=r; }
+  const bumpFrac=Math.min(EXAG_FIXED*mx/gN.rmA, 0.40);
+  const pad=10, labelPad=46, Rmax=Math.min(Wc,Hc)/2-pad;
+  const R0=Math.max(40, Math.min(Rmax/(1+bumpFrac), Rmax-labelPad));
+  const EXAG=bumpFrac*R0/Math.max(mx,0.5);
+  const exFactor=Math.round(EXAG*gN.rmA/R0);
+  const rot=gN.q||0;                                               // rotazione di campo all'istante corrente
   const PX=(th,rr)=>[cx - rr*Math.sin(th*RAD), cy - rr*Math.cos(th*RAD)];
-  // ROTAZIONE DI CAMPO (= orientamento della simulazione): nel cielo reale il Nord celeste
-  // NON è verticale, è ruotato dell'angolo parallattico q. Disegniamo quindi ogni elemento a
-  // (th - q). Il disco "medio" e gli assi usano q al picco; OGNI contatto (C2/C3) usa il PROPRIO
-  // q perché la rotazione di campo cambia durante la totalità (qui ~9° fra C2 e C3).
-  const rotP=gP.q||0;
-  // cerchio del lembo MEDIO (un cerchio: invariante per rotazione)
+  // cerchio del lembo MEDIO (invariante per rotazione)
   ctx.strokeStyle='rgba(150,170,200,.45)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
   ctx.beginPath(); ctx.arc(cx,cy,R0,0,7); ctx.stroke(); ctx.setLineDash([]);
-  // assi cardinali nell'orientamento del CIELO REALE (N ruotato di q, non più verticale)
+  // assi cardinali nell'orientamento del CIELO REALE (N ruotato di q)
   ctx.fillStyle='rgba(170,190,215,.75)'; ctx.font='11px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  for(const [lab,th] of [['N',0],['E',90],['S',180],['O',270]]){ const p=PX(th-rotP,R0+16); ctx.fillText(lab,p[0],p[1]); }
-  // silhouette del disco lunare (profilo medio al picco): solo riempimento + bordo tenue
+  for(const [lab,th] of [['N',0],['E',90],['S',180],['O',270]]){ const p=PX(th-rot,R0+16); ctx.fillText(lab,p[0],p[1]); }
+  // profilo lunare reale all'ISTANTE CORRENTE
   ctx.beginPath();
-  for(let th=0;th<=360;th+=0.5){ const r=R0+EXAG*bailyReliefArcsec(th,gP); const p=PX(th-rotP,r); if(th===0)ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); }
+  for(let th=0;th<=360;th+=0.5){ const r=R0+EXAG*bailyReliefArcsec(th,gN); const p=PX(th-rot,r); if(th===0)ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); }
   ctx.closePath(); ctx.fillStyle='rgba(18,23,32,.9)'; ctx.fill();
-  ctx.strokeStyle='rgba(222,230,242,.30)'; ctx.lineWidth=1; ctx.stroke();
-  // bordo del Sole + grani per un contatto, ciascuno ruotato del PROPRIO angolo parallattico
-  function drawContact(g, col, lab){
-    const rot=g.q||0, W=40, WL=52;
-    // lembo reale LOCALE a questo contatto (stesso q dei grani -> i grani cadono nelle sue valli)
-    ctx.strokeStyle='rgba(222,230,242,.94)'; ctx.lineWidth=1.4; ctx.beginPath(); let sL=false;
-    for(let a=-WL;a<=WL;a+=0.5){ const th=g.skyPA+a, r=R0+EXAG*bailyReliefArcsec(th,g), p=PX(th-rot,r); if(!sL){ctx.moveTo(p[0],p[1]);sL=true;} else ctx.lineTo(p[0],p[1]); }
-    ctx.stroke();
-    ctx.strokeStyle=col; ctx.lineWidth=1.7; ctx.beginPath(); let started=false;
-    for(let a=-W;a<=W;a+=0.5){ const th=g.skyPA+a, dev=bailySolarDev(th,g); if(dev==null)continue;
-      const p=PX(th-rot,R0+EXAG*dev); if(!started){ctx.moveTo(p[0],p[1]);started=true;} else ctx.lineTo(p[0],p[1]); }
-    ctx.stroke();
-    let nb=0, inBead=false;                                       // conta i grani DISTINTI (cluster di luce)
-    for(let a=-W;a<=W;a+=0.22){ const th=g.skyPA+a, dev=bailySolarDev(th,g); if(dev==null){inBead=false;continue;}
-      const rel=bailyReliefArcsec(th,g), vis=dev-rel;            // rho_Sole - r_Luna > 0 => grano
-      if(vis>0){ const p=PX(th-rot,R0+EXAG*rel);
+  ctx.strokeStyle='rgba(222,230,242,.6)'; ctx.lineWidth=1.2; ctx.stroke();
+  // direzioni di riferimento dei contatti C2 e C3 (tenui)
+  ctx.font='bold 12px system-ui';
+  if(g2){ const p=PX(g2.skyPA-rot,R0+34); ctx.fillStyle='rgba(255,206,107,.5)'; ctx.fillText('C2',p[0],p[1]); }
+  if(g3){ const p=PX(g3.skyPA-rot,R0+34); ctx.fillStyle='rgba(127,212,255,.5)'; ctx.fillText('C3',p[0],p[1]); }
+  // GRANI DAL VIVO — gli STESSI del simulatore: drawBeads li calcola e li passa in BAILY.live
+  const live=BAILY.live, activeNow=!!(live&&live.beads&&live.t===S.t);
+  const mid=(S.loc.total_begin&&S.loc.total_end)?(S.loc.total_begin.time.date.getTime()+S.loc.total_end.time.date.getTime())/2:S.t;
+  const entering=S.t<=mid, col=entering?'#ffce6b':'#7fd4ff';
+  let nLive=0;
+  if(activeNow){
+    // bordo del Sole alla separazione CORRENTE
+    ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.globalAlpha=.85; ctx.beginPath(); let st=false;
+    for(let a=-40;a<=40;a+=0.5){ const th=gN.skyPA+a, dev=bailySolarDev(th,gN); if(dev==null)continue; const p=PX(th-rot,R0+EXAG*dev); if(!st){ctx.moveTo(p[0],p[1]);st=true;} else ctx.lineTo(p[0],p[1]); }
+    ctx.stroke(); ctx.globalAlpha=1;
+    // un punto per ogni campione illuminato del simulatore, sulla SUA valle del lembo (vis>0.04 = fotosfera)
+    let inb=false;
+    for(let i=0;i<live.N;i++){
+      if(live.vis[i]>0.04){
+        const th=live.pa[i]+gN.Paxis, p=PX(th-rot,R0+EXAG*live.rel[i]);
         ctx.globalAlpha=.32; ctx.beginPath(); ctx.arc(p[0],p[1],4.4,0,7); ctx.fillStyle=col; ctx.fill(); ctx.globalAlpha=1;
         ctx.beginPath(); ctx.arc(p[0],p[1],2.2,0,7); ctx.fillStyle=col; ctx.fill();
-        if(!inBead)nb++; inBead=true; } else inBead=false;
+        if(!inb)nLive++; inb=true;
+      } else inb=false;
     }
-    const pe=PX(g.skyPA-rot,R0+34); ctx.fillStyle=col; ctx.font='bold 12px system-ui'; ctx.fillText(lab,pe[0],pe[1]);
-    return nb;
   }
-  const n2=drawContact(g2,'#ffce6b','C2'), n3=drawContact(g3,'#7fd4ff','C3');
-  const dur=tdur((S.loc.total_end.time.date.getTime()-S.loc.total_begin.time.date.getTime())/1000);
+  const dur=(S.loc.total_begin&&S.loc.total_end)?tdur((S.loc.total_end.time.date.getTime()-S.loc.total_begin.time.date.getTime())/1000):'';
+  const stato=activeNow?(entering?'verso C2':'verso C3'):'totalità / fuori contatto';
   $('baily-cap').innerHTML=
-    `Profilo del lembo lunare <b>LRO/LOLA</b> · proporzioni radiali esagerate <b>×${exFactor}</b>. `+
-    `Orientamento del <b>cielo reale</b> come la simulazione (rotazione di campo applicata; ogni contatto col proprio angolo parallattico). `+
-    `Tratteggio = lembo medio; linea piena = profilo reale. `+
-    `<span class="k2">●</span> grani a <b>C2</b> (${n2}) &nbsp; <span class="k3">●</span> grani a <b>C3</b> (${n3}) · totalità ${dur}. `+
-    `<i style="opacity:.8">Profilo dal file ufficiale Occult LOLA128.bin (LRO/LOLA).</i>`;
+    `Profilo del lembo lunare <b>LRO/LOLA</b> · scala fissa <b>×${exFactor}</b> · orientamento <b>cielo reale</b>. `+
+    `<b>Dal vivo</b> col simulatore: grani ora = <b>${nLive}</b> (${stato}). `+
+    `Tratteggio = lembo medio; linea piena = profilo reale · totalità ${dur}. `+
+    `<i style="opacity:.8">Grani e geometria identici alla simulazione · profilo Occult LOLA128.bin (LRO/LOLA).</i>`;
 }
 
 /* ---------- stelle/pianeti ---------- */
