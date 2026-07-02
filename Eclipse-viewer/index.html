@@ -71,6 +71,23 @@ button.acc{background:var(--acc);color:#1a1206;border-color:var(--acc);font-weig
 .acc-head .count{margin-left:auto;font-size:12px;color:var(--dim);font-weight:400;letter-spacing:0;text-transform:none}
 .acc-body{display:none}
 .acc-body.open{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:14px 0 8px}
+/* ===== footer fonti (solo schermata 1) ===== */
+#s1 .src{margin-top:40px;padding-top:24px;border-top:1px solid var(--line);color:var(--dim);font-size:13px;line-height:1.55}
+#s1 .src .sec-title{margin-bottom:18px}
+#s1 .src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px 28px}
+#s1 .src h4{margin:0 0 5px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--txt);font-weight:650}
+#s1 .src p{margin:0}
+#s1 .src em{color:var(--txt);font-style:italic}
+#s1 .src code{font-size:12px;color:var(--acc2)}
+#s1 .src a{color:var(--acc2);text-decoration:none;border-bottom:1px solid rgba(111,195,255,.32)}
+#s1 .src a:hover{color:var(--acc);border-bottom-color:var(--acc)}
+#s1 .src .note{margin-top:24px;padding-top:14px;border-top:1px dashed var(--line);font-size:12px;color:var(--dim)}
+/* ===== avviso di sicurezza (schermata 1) ===== */
+#s1 .safety{display:flex;align-items:flex-start;gap:9px;margin:-8px 0 26px;padding:11px 13px;
+  background:rgba(255,178,77,.09);border:1px solid rgba(255,178,77,.38);border-radius:10px;
+  color:var(--txt);font-size:13.5px;line-height:1.5}
+#s1 .safety .warn-ico{flex:0 0 auto;width:22px;height:22px;margin-top:1px}
+#s1 .safety strong{color:var(--acc);letter-spacing:.02em}
 
 
 .badge{display:inline-block;margin-top:10px;font-size:12px;color:var(--dim);
@@ -87,6 +104,8 @@ button.acc{background:var(--acc);color:#1a1206;border-color:var(--acc);font-weig
 #presets{position:absolute;left:0;right:0;bottom:14px;display:flex;gap:8px;justify-content:center;
   flex-wrap:wrap;z-index:1001;padding:0 12px}
 #presets button{font-size:13px;padding:6px 11px;border-radius:99px;background:rgba(18,26,35,.9)}
+#presets button.geo-preset{border-color:var(--acc);color:var(--acc)}
+#presets button.geo-preset:disabled{opacity:.65;cursor:progress}
 .leg{position:absolute;right:12px;top:58px;background:rgba(13,19,26,.85);border:1px solid var(--line);
   border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--dim);z-index:1001}
 .leg .sw{display:inline-block;width:14px;height:9px;border-radius:2px;margin-right:7px;vertical-align:baseline}
@@ -854,12 +873,81 @@ svg.leaflet-image-layer.leaflet-interactive path {
   <div class="wrap">
     <h1>Cielo dell'eclisse</h1>
     <div class="sub">Prototipo v0.1 — scegli un'eclissi, poi un punto sulla mappa: vedrai il cielo da lì.</div>
+    <div class="safety" role="alert">
+      <svg class="warn-ico" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2.4 22.5 21.2 H1.5 Z" fill="#ffcc00" stroke="#8a6400" stroke-width="1" stroke-linejoin="round"/>
+        <rect x="11" y="9" width="2" height="6.2" rx="1" fill="#1a1206"/>
+        <circle cx="12" cy="17.6" r="1.25" fill="#1a1206"/>
+      </svg>
+      <span><strong>IMPORTANTE:</strong> non osservare MAI il Sole a occhio nudo o al binocolo/telescopio senza adeguati filtri certificati di protezione!</span>
+    </div>
     <div class="sec-title">Prossime eclissi</div>
     <div class="cards" id="cards-future"></div>
     <div class="acc">
       <button class="acc-head" id="pastToggle" aria-expanded="false"><span class="chev">▸</span> Eclissi passate <span class="count" id="pastCount"></span></button>
       <div class="acc-body" id="cards-past"></div>
     </div>
+
+    <!-- ============ FOOTER : FONTI E DATI ============ -->
+    <footer class="src">
+      <div class="sec-title">Fonti, cataloghi e dati</div>
+      <div class="src-grid">
+
+        <div>
+          <h4>Motore delle eclissi</h4>
+          <p>Elementi besseliani polinomiali ufficiali di Fred Espenak
+          (<a href="https://www.eclipsewise.com" target="_blank" rel="noopener">EclipseWise.com</a>),
+          su effemeridi JPL DE405. Riduzione besseliana secondo l'<em>Explanatory Supplement to the
+          Astronomical Almanac</em> e J. Meeus, <em>Elements of Solar Eclipses</em>. Predizioni:
+          <a href="https://www.eclipsewise.com/solar/SEprime/2001-2100/SE2026Aug12Tprime.html" target="_blank" rel="noopener">12 ago 2026</a>,
+          <a href="https://www.eclipsewise.com/solar/SEprime/2001-2100/SE2027Feb06Aprime.html" target="_blank" rel="noopener">6 feb 2027</a>,
+          <a href="https://www.eclipsewise.com/solar/SEprime/2001-2100/SE2027Aug02Tprime.html" target="_blank" rel="noopener">2 ago 2027</a>.</p>
+        </div>
+
+        <div>
+          <h4>Effemeridi e cielo</h4>
+          <p><a href="https://github.com/cosinekitty/astronomy" target="_blank" rel="noopener">Astronomy Engine v2.1.19</a>
+          (Don Cross, licenza MIT): serie VSOP87 troncata per Sole e pianeti e teoria lunare associata
+          (accuratezza &#8776;&nbsp;1&prime;), &Delta;T secondo Espenak &amp; Meeus; validato contro JPL Horizons e
+          NOVAS/DE405. Librazione lunare (<code>Astronomy.Libration</code>) per l'orientamento dei grani di Baily.</p>
+        </div>
+
+        <div>
+          <h4>Cataloghi NASA</h4>
+          <p><a href="https://eclipse.gsfc.nasa.gov" target="_blank" rel="noopener">NASA / GSFC Eclipse Web Site</a>:
+          <em>Five Millennium Canon &amp; Catalog of Solar Eclipses</em>, tavole per decade e catalogo SEcat5;
+          <em>JavaScript Solar Eclipse Explorer</em> (JSEX) per le circostanze locali. Serie Saros&ndash;Inex
+          ancorate ai valori NASA.</p>
+        </div>
+
+        <div>
+          <h4>Topografia lunare &mdash; grani di Baily</h4>
+          <p>Profilo del lembo dai dati <a href="https://lola.gsfc.nasa.gov" target="_blank" rel="noopener">NASA LRO / LOLA</a>
+          (Lunar Reconnaissance Orbiter &middot; Lunar Orbiter Laser Altimeter), datum sferico 1737,4&nbsp;km;
+          estratto e ridotto con Occult&nbsp;4 (Dave Herald, IOTA).</p>
+        </div>
+
+        <div>
+          <h4>Cartografia</h4>
+          <p>Mappe con <a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>;
+          tile &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors;
+          immagini satellitari &copy; <a href="https://www.esri.com" target="_blank" rel="noopener">Esri</a> (World Imagery);
+          coste e confini da <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (110&nbsp;m).</p>
+        </div>
+
+        <div>
+          <h4>Validazione</h4>
+          <p>Confronto punto&#8209;per&#8209;punto col canone NASA/GSFC e con le mappe interattive di
+          <a href="http://xjubier.free.fr" target="_blank" rel="noopener">Xavier Jubier</a>. Scarti tipici:
+          punto di massimo 0,07&ndash;0,10&nbsp;km; durata centrale &le;&nbsp;0,2&nbsp;s; larghezza del percorso &lt;&nbsp;0,3&nbsp;km.</p>
+        </div>
+
+      </div>
+      <p class="note">Progetto divulgativo. I dati NASA e i lavori degli autori citati sono usati a scopo
+      educativo con attribuzione agli originali; non destinato alla navigazione n&eacute; a usi scientifici di
+      precisione. Marchi, cataloghi e dati appartengono ai rispettivi titolari.</p>
+    </footer>
+
   </div>
 </div>
 
@@ -1274,10 +1362,22 @@ const fmt2=n=>String(n).padStart(2,'0');
   function ev(E,td){var t=td-E.t0;return{x:pv(E.x,t),y:pv(E.y,t),d:pv(E.d,t)*DEG,mu:pv(E.mu,t)*DEG,l1:pv(E.l1,t),l2:pv(E.l2,t),tf1:E.tanf1,tf2:E.tanf2};}
   function lc(E){return SID*15*(E.deltaT/3600);}
   function basis(d,mu){var cd=Math.cos(d),sd=Math.sin(d),cm=Math.cos(mu),sm=Math.sin(mu);return{ze:[cd*cm,-cd*sm,sd],xi:[sm,cm,0],et:[-sd*cm,sd*sm,cd]};}
+  // memo del "frame" besseliano per (E,td): dentro i motori della fascia/parzialita'
+  // migliaia di valutazioni condividono lo stesso td -> ev() e i sin/cos di d,mu si
+  // calcolano una volta sola. Stessi numeri, meno lavoro (cache svuotata oltre 512 td).
+  var _FC=new Map(), _FCE=null;
+  function frameTd(E,td){
+    if(_FCE!==E){_FC.clear();_FCE=E;}
+    var f=_FC.get(td); if(f)return f;
+    var b=ev(E,td);
+    f={b:b,cd:Math.cos(b.d),sd:Math.sin(b.d),cm:Math.cos(b.mu),sm:Math.sin(b.mu)};
+    if(_FC.size>512)_FC.clear();
+    _FC.set(td,f);return f;
+  }
   function wrap(L){return ((L+540)%360)-180;}
   function central(E,td){var b=ev(E,td),B=basis(b.d,b.mu),A=[b.x*B.xi[0]+b.y*B.et[0],b.x*B.xi[1]+b.y*B.et[1],b.x*B.xi[2]+b.y*B.et[2]],M=[1,1,1/oneMe2],qa=0,qb=0,qc=-1,i;for(i=0;i<3;i++){qa+=M[i]*B.ze[i]*B.ze[i];qb+=2*M[i]*A[i]*B.ze[i];qc+=M[i]*A[i]*A[i];}var disc=qb*qb-4*qa*qc,z=disc<0?-qb/(2*qa):(-qb+Math.sqrt(disc))/(2*qa),P=[A[0]+z*B.ze[0],A[1]+z*B.ze[1],A[2]+z*B.ze[2]];return{lat:Math.atan2(P[2],oneMe2*Math.hypot(P[0],P[1]))/DEG,lon:wrap(Math.atan2(P[1],P[0])/DEG+lc(E)),grazing:disc<0};}
-  function obsF(E,b,lat,lon){var phi=lat*DEG,lam=(lon-lc(E))*DEG,N=1/Math.sqrt(1-e2*Math.sin(phi)*Math.sin(phi)),X=N*Math.cos(phi)*Math.cos(lam),Y=N*Math.cos(phi)*Math.sin(lam),Z=N*oneMe2*Math.sin(phi),cd=Math.cos(b.d),sd=Math.sin(b.d),cm=Math.cos(b.mu),sm=Math.sin(b.mu);return{xi:X*sm+Y*cm,et:-X*sd*cm+Y*sd*sm+Z*cd,ze:X*cd*cm-Y*cd*sm+Z*sd};}
-  function sep(E,td,lat,lon){var b=ev(E,td),o=obsF(E,b,lat,lon),u=b.x-o.xi,v=b.y-o.et;return{m:Math.hypot(u,v),L1:b.l1-o.ze*b.tf1,L2:b.l2-o.ze*b.tf2,ze:o.ze};}
+  function obsF(E,b,lat,lon,F){var phi=lat*DEG,lam=(lon-lc(E))*DEG,N=1/Math.sqrt(1-e2*Math.sin(phi)*Math.sin(phi)),X=N*Math.cos(phi)*Math.cos(lam),Y=N*Math.cos(phi)*Math.sin(lam),Z=N*oneMe2*Math.sin(phi),cd=F?F.cd:Math.cos(b.d),sd=F?F.sd:Math.sin(b.d),cm=F?F.cm:Math.cos(b.mu),sm=F?F.sm:Math.sin(b.mu);return{xi:X*sm+Y*cm,et:-X*sd*cm+Y*sd*sm+Z*cd,ze:X*cd*cm-Y*cd*sm+Z*sd};}
+  function sep(E,td,lat,lon){var F=frameTd(E,td),b=F.b,o=obsF(E,b,lat,lon,F),u=b.x-o.xi,v=b.y-o.et;return{m:Math.hypot(u,v),L1:b.l1-o.ze*b.tf1,L2:b.l2-o.ze*b.tf2,ze:o.ze};}
   // frazione dell'AREA del disco solare coperta (sovrapposizione di due cerchi)
   function obscArea(rS,rM,d){rS=Math.abs(rS);rM=Math.abs(rM);
     if(rS===0||d>=rS+rM)return 0;
@@ -1311,6 +1411,10 @@ const fmt2=n=>String(n).padStart(2,'0');
   function getE(x){return typeof x==='string'?(DATA[x]||BYID[x]||null):x;}
   var Espenak={
     data:DATA,
+    // accesso di basso livello per il motore della fascia (curve limite N/S):
+    // sep/central sugli stessi polinomi usati per le circostanze del click.
+    sepTd:function(x,td,lat,lon){var E=getE(x);return E?sep(E,td,lat,lon):null;},
+    centralTd:function(x,td){var E=getE(x);return E?central(E,td):null;},
     byId:function(id){return BYID[id]||null;},
     byDate:function(d){return DATA[d]||null;},
     local:function(x,lat,lon){var E=getE(x);return E?local(E,lat,lon):null;},
@@ -2249,7 +2353,17 @@ function skyLevel(sunAlt,obs){
   const f=Math.max(1-obs,0);                       // frazione di fotosfera scoperta (luminosita' media)
   const Eg=Efull*f;                                // illuminamento al suolo durante l'eclissi
   const g=dayLevel(Eg);                            // calo NON lineare: azzurro fin quasi alla totalita'
-  return {L:base*g+0.004, base, g, Efull, Eg};
+  /* EFFETTI DI TOTALITA' (fascia crepuscolare a 360°, grigio-acciaio, glow):
+     rappresentano luce diurna proveniente dall'atmosfera OLTRE l'ombra, quindi
+     esistono solo col Sole sopra l'orizzonte. Col Sole sotto, la luce residua
+     e' il crepuscolo gia' descritto da "base": aggiungerli SCHIARIREBBE il cielo
+     al massimo, invertendo la progressione naturale del tramonto.
+     up = gate: 1 a Sole >= +1° (casi diurni validati invariati), 0 a <= -1°.
+     env = inviluppo crepuscolare (base normalizzata a base(0°)=0.5909),
+     usato per sfumare la rampa nella finestra di transizione 0°..-1°. */
+  const env=Math.min(1,base/0.5909);
+  const up=sstep((sunAlt+1)/2);
+  return {L:base*g+0.004, base, g, Efull, Eg, env, up};
 }
 
 /* ---------- palette cielo: [zenit, medio, orizzonte] per fasi ---------- */
@@ -2706,6 +2820,39 @@ function pickEclipse(e){
 }
 function buildPresets(){
   const box=$('presets'); box.innerHTML='';
+  // "La mia posizione" — geolocalizzazione del browser come primo preset
+  const bGeo=document.createElement('button');
+  bGeo.type='button';
+  bGeo.className='geo-preset';
+  bGeo.innerHTML='⌖ La mia posizione';
+  bGeo.title='Usa la posizione del dispositivo come punto di osservazione';
+  bGeo.onclick=()=>{
+    if(!navigator.geolocation){ toast('Geolocalizzazione non disponibile su questo dispositivo/browser.'); return; }
+    const label=bGeo.innerHTML;
+    bGeo.disabled=true; bGeo.innerHTML='⌖ Individuo…';
+    navigator.geolocation.getCurrentPosition(
+      pos=>{
+        bGeo.disabled=false; bGeo.innerHTML=label;
+        let la=pos.coords.latitude, lo=pos.coords.longitude;
+        while(lo>180)lo-=360; while(lo<-180)lo+=360;
+        // centra la mappa sulla posizione così il marker/popup sono visibili
+        if(MAP.map) MAP.map.setView([la,lo], Math.max(MAP.map.getZoom(),6), {animate:true});
+        // pickPoint valida il punto, piazza il marker e apre da sé il popup
+        // con le circostanze locali e la CTA "Vedi da qui" (→ simulatore)
+        pickPoint(la,lo,'La mia posizione');
+      },
+      err=>{
+        bGeo.disabled=false; bGeo.innerHTML=label;
+        const msg = err.code===err.PERMISSION_DENIED   ? 'Permesso di geolocalizzazione negato.'
+                  : err.code===err.POSITION_UNAVAILABLE ? 'Posizione non disponibile al momento.'
+                  : err.code===err.TIMEOUT              ? 'Tempo scaduto: riprova a rilevare la posizione.'
+                  : 'Impossibile ottenere la posizione.';
+        toast(msg);
+      },
+      {enableHighAccuracy:true, timeout:10000, maximumAge:60000}
+    );
+  };
+  box.appendChild(bGeo);
   const bMax=document.createElement('button');
   bMax.textContent='★ Punto di massimo';
   bMax.onclick=()=>{const g=shadowGeometry(S.glob.peak);const ax=axisEarth(S.glob.peak,g);
@@ -2746,8 +2893,54 @@ function initMap(){
     });
   }
   MAP.map.invalidateSize();
-  if(!MAP.band||MAP.band.id!==S.ecl.id) computeBand();
-  buildOverlays(); legend();
+  if(MAP.band&&MAP.band.id===S.ecl.id){buildOverlays();legend();return;}
+  const cached=BANDCACHE.get(S.ecl.id);
+  if(cached){MAP.band=cached;buildOverlays();legend();return;}
+  buildBandAsync();
+}
+/* --- calcolo della fascia SPEZZATO in passi asincroni: la schermata della mappa
+   appare SUBITO (tile, zoom, click gia' attivi) e fascia/curve arrivano appena
+   pronte. Ogni passo verifica che l'eclissi non sia cambiata nel frattempo.
+   Le eclissi gia' calcolate restano in cache (fino a 8): riaprirle e' istantaneo. --- */
+const BANDCACHE=new Map();
+function bandProgress(on){
+  let b=document.getElementById('bandwait');
+  if(on){
+    if(!b){
+      b=document.createElement('div'); b.id='bandwait';
+      b.textContent='⏳ calcolo fascia e curve dell’eclissi…';
+      b.style.cssText='position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:1200;'
+        +'background:rgba(14,20,28,.88);border:1px solid var(--line);border-radius:9px;'
+        +'padding:6px 12px;font-size:12.5px;color:var(--txt);pointer-events:none';
+      const host=document.getElementById('map'); if(host)host.appendChild(b);
+    }
+  } else if(b) b.remove();
+}
+function buildBandAsync(){
+  const id=S.ecl.id, tok=(buildBandAsync._tok=(buildBandAsync._tok||0)+1);
+  const alive=()=>buildBandAsync._tok===tok&&S.ecl&&S.ecl.id===id;
+  MAP.band=null; MAP.overlay.clearLayers(); MAP.marker=null; legend(); bandProgress(true);
+  // vista PROVVISORIA dal catalogo (stessa inquadratura della mini-mappa): la mappa
+  // e' subito navigabile; il fitBounds definitivo arriva con buildOverlays.
+  MAP.map.setMinZoom(0);
+  const v=S.ecl.view;
+  if(v&&v.length>=3)MAP.map.setView([v[0],v[1]],v[2],{animate:false});
+  else if(!MAP.map._loaded)MAP.map.setView([20,0],2,{animate:false});
+  setTimeout(()=>{ if(!alive())return;
+    computeBandCore();                                   // campioni + impronte del cono (veloce)
+    setTimeout(()=>{ if(!alive())return;
+      try{ MAP.band.limits=computeBandLimits(); }        // curve limite N/S esatte
+      catch(err){ MAP.band.limits=null; }
+      setTimeout(()=>{ if(!alive())return;
+        try{ MAP.band.prings=computePartialRings(); }    // curve di parzialita' esatte
+        catch(err){ MAP.band.prings=null; }
+        BANDCACHE.set(id,MAP.band);
+        if(BANDCACHE.size>8){const k0=BANDCACHE.keys().next().value;BANDCACHE.delete(k0);}
+        bandProgress(false);
+        buildOverlays(); legend();
+      },16);
+    },16);
+  },16);
 }
 function toggleSat(){
   MAP.satOn=!MAP.satOn;
@@ -2768,7 +2961,14 @@ function legend(){
 }
 
 /* --- campionamento del percorso (una volta per eclissi) --- */
-function computeBand(){
+function computeBand(){          // percorso sincrono completo (compatibilita'/test)
+  computeBandCore();
+  try{ MAP.band.limits=computeBandLimits(); }
+  catch(err){ MAP.band.limits=null; }
+  try{ MAP.band.prings=computePartialRings(); }
+  catch(err){ MAP.band.prings=null; }
+}
+function computeBandCore(){
   const peak=S.glob.peak, dt=120/86400, span=240;
   const samples=[];
   for(let k=-span;k<=span;k++){
@@ -2819,11 +3019,8 @@ function computeBand(){
         foot.push(ring); footFull.push(ring.full!==false && ring.realHits===ring.npsi);
         // direzione del Sole (ECEF, unitaria) a quest'istante: serve a clippare
         // l'impronta al lato GIORNO (P·sun>0), cosi' la fascia segue il terminatore.
-        { const gs=shadowGeometry(time);
-          const uE=A.RotateVector(A.Rotation_EQJ_EQD(time), new A.Vector(gs.u.x,gs.u.y,gs.u.z,time));
-          const th2=A.SiderealTime(time)*15*RAD, c2=Math.cos(th2), s2=Math.sin(th2);
-          let sx2=-(c2*uE.x+s2*uE.y), sy2=-(-s2*uE.x+c2*uE.y), sz2=-uE.z;
-          const nn=Math.hypot(sx2,sy2,sz2)||1; footSun.push([sx2/nn,sy2/nn,sz2/nn]); }
+        // Calcolata direttamente da umbraFootprint (stessa rotazione, stessi numeri).
+        footSun.push(ring.sunEF||[0,0,1]);
         let cla=0,clo=0; for(const p of ring){cla+=p[0];clo+=p[1];}
         const C=[cla/ring.length, clo/ring.length];
         if(prevC){
@@ -2837,6 +3034,8 @@ function computeBand(){
     }
   }
   MAP.band={id:S.ecl.id, samples, hits, foot, footFull, footSun, annular:hits.some(x=>x.ann)};
+  // limits (curve limite N/S) e prings (curve di parzialita') vengono aggiunti
+  // dai passi successivi della pipeline (buildBandAsync) o da computeBand().
 }
 function angNorm(d){while(d>180)d-=360;while(d<-180)d+=360;return d;}
 function dest(lat,lon,bearing,dkm){
@@ -2856,6 +3055,802 @@ function unwrap(pts, ref){
     out.push([la,l]); prev=l;
   }
   return out;
+}
+
+/* ============================================================================
+   MOTORE FASCIA DI TOTALITÀ/ANULARITÀ — curve limite Nord/Sud esatte
+   ----------------------------------------------------------------------------
+   La fascia NON viene ricavata da raster+blur+isolinee né dall'unione di
+   poligoni discreti (bordi ondulati/frastagliati): i bordi sono calcolati
+   direttamente come CURVE LIMITE, cioè l'inviluppo del bordo dell'ombra in
+   moto sull'ellissoide. Un punto P è sul limite nord/sud quando, all'istante
+   td,
+     G(P,td) = 0   (P esattamente sul bordo di ombra/antumbra)
+     Ġ(P,td) = 0   (il bordo è tangente al proprio moto: P non entra mai
+                    più a fondo nell'ombra → confine della fascia)
+   con G(P,td) = m − |L2′| dagli stessi elementi besseliani usati per le
+   circostanze locali del click (coerenza garantita: dentro la fascia ⇔ il
+   click riporta totalità/anularità). È la stessa condizione rigorosa delle
+   tabelle dei limiti Espenak/NASA (validato: scarti ≤0.2 km dalla tabella
+   GSFC di SE2024Apr08T a parità di ΔT).
+   CAPPUCCI (estremità alba/tramonto): lì il confine non è l'inviluppo ma il
+   bordo dell'UNIONE delle impronte nella finestra radente, U(P)=min_t F(P,t),
+   con F = max(G, −ζ) (dentro l'ombra E Sole sopra l'orizzonte). Il contorno
+   U=0 viene percorso con predictor–corrector (gradiente numerico): i cappucci
+   seguono così la curvatura del terminatore, comprese le sottili "code" di
+   nascita/morte dell'ombra, senza alcuna ipotesi sulla forma della regione.
+   Il motore è indipendente dalla sorgente degli elementi: lavora su un
+   "provider" {t0, F(la,lo,td), center(td)} — Espenak per il catalogo,
+   effemeride interna per eclissi future senza elementi pubblicati.
+   ========================================================================== */
+function umbralLimitCurves(prov, opt){
+  'use strict';
+  opt = opt || {};
+  var RAD = Math.PI/180, DEG = 180/Math.PI;
+  var H       = 0.0025;               // ore: passo per Ġ (±9 s, differenza centrata)
+  var STEP_KM = opt.stepKm || 15;     // spaziatura bersaglio dei punti sulle curve
+  var NB      = opt.nBear  || 96;     // rilevamenti di scansione del bordo
+  var INT_TOL = -1e-6;                // soglia "interno" (unità besseliane, ~6 m)
+  var PINCH   = 1.5e-4;               // strozzatura ibrida: |G(centro)| < ~1 km
+  var MAXPT   = opt.maxPts || 2600;   // guardia sul numero di campioni
+  var CAPSTEP = opt.capStep || 2.4;   // km: passo del cammino sul contorno dei cappucci
+
+  function dst(la, lo, brg, km){      // destinazione geodetica (parametrizzazione)
+    var d = km/6371, f1 = la*RAD, l1 = lo*RAD;
+    var f2 = Math.asin(Math.sin(f1)*Math.cos(d) + Math.cos(f1)*Math.sin(d)*Math.cos(brg));
+    var l2 = l1 + Math.atan2(Math.sin(brg)*Math.sin(d)*Math.cos(f1),
+                             Math.cos(d) - Math.sin(f1)*Math.sin(f2));
+    return [f2*DEG, ((l2*DEG + 540) % 360) - 180];
+  }
+  function FF(la, lo, td){            // F = max(G, −ζ): <0 ⇔ dentro ombra E lato giorno
+    var s = prov.F(la, lo, td);
+    return Math.max(s.G, -s.ze);
+  }
+  function locKm(from, to){           // vettore locale (nord, est) in km
+    var dlo = to[1] - from[1]; while(dlo > 180) dlo -= 360; while(dlo < -180) dlo += 360;
+    return [(to[0] - from[0])*111.2, dlo*111.2*Math.cos(0.5*(from[0]+to[0])*RAD)];
+  }
+  function moveKm(a, b){ var v = locKm(a, b); return Math.hypot(v[0], v[1]); }
+
+  // --- punto interno alla regione {G<0 ∧ ζ>0} all'istante td (o null).
+  // seeds: partenze aggiuntive (continuità: essenziale negli istanti radenti)
+  function interior(td, seeds){
+    var starts = [], c = prov.center(td);
+    if(c) starts.push(c);
+    if(seeds) for(var q = 0; q < seeds.length; q++) if(seeds[q]) starts.push(seeds[q]);
+    for(var w = 0; w < starts.length; w++){
+      var la = starts[w][0], lo = starts[w][1], f = FF(la, lo, td);
+      if(f < INT_TOL) return [la, lo];
+      var s = 0.25;                   // pattern search (gradi)
+      for(var it = 0; it < 70 && s > 5e-5; it++){
+        var bla = la, blo = lo, bf = f, imp = false;
+        for(var k = 0; k < 8; k++){
+          var a = k*Math.PI/4, cs = Math.max(0.03, Math.cos(la*RAD));
+          var la2 = Math.max(-89.9, Math.min(89.9, la + s*Math.cos(a))), lo2 = lo + s*Math.sin(a)/cs;
+          var f2 = FF(la2, lo2, td);
+          if(f2 < bf){ bf = f2; bla = la2; blo = lo2; imp = true; }
+        }
+        if(imp){ la = bla; lo = blo; f = bf; } else s *= 0.55;
+        if(f < INT_TOL) return [la, lo];
+      }
+    }
+    return null;
+  }
+  // --- punto del bordo lungo il rilevamento brg dal centro C (bisezione su F) ---
+  var _edgeR = null;                    // warm start del raggio del bordo per rilevamento
+  function edge(C, brg, td, bi){
+    var r0 = 0, r1 = 8, p, f1, guard = 0;
+    if(bi !== undefined && _edgeR && _edgeR[bi] > 0){
+      var rw = _edgeR[bi];              // bracket stretto attorno al raggio del campione precedente
+      var ra = rw*0.72, rb = rw*1.39;   // verificato: se non incornicia il bordo si torna al metodo pieno
+      p = dst(C[0], C[1], brg, ra); var fa = FF(p[0], p[1], td);
+      if(fa < 0){ p = dst(C[0], C[1], brg, rb); f1 = FF(p[0], p[1], td);
+        if(f1 >= 0){ r0 = ra; r1 = rb; guard = 99; } else { r0 = rb; r1 = rb*1.7; } }
+    }
+    if(guard !== 99){
+      if(!(r0 > 0)){ r0 = 0; r1 = 8; }
+      p = dst(C[0], C[1], brg, r1); f1 = FF(p[0], p[1], td);
+      guard = 0;
+      while(f1 < 0 && guard++ < 24){ r0 = r1; r1 *= 1.7; if(r1 > 4200) break;
+        p = dst(C[0], C[1], brg, r1); f1 = FF(p[0], p[1], td); }
+      if(f1 < 0) return null;
+    }
+    for(var i = 0; i < 24 || (r1 - r0) > 2e-4; i++){   // bracket < 0.2 m (piu' che sufficiente)
+      if(i > 60) break;
+      var rm = 0.5*(r0 + r1), pm = dst(C[0], C[1], brg, rm);
+      if(FF(pm[0], pm[1], td) < 0) r0 = rm; else r1 = rm;
+    }
+    var rr = 0.5*(r0 + r1);
+    if(bi !== undefined){ if(!_edgeR) _edgeR = new Float64Array(NB); _edgeR[bi] = rr; }
+    var P = dst(C[0], C[1], brg, rr);
+    var s = prov.F(P[0], P[1], td);
+    return { p: P, G: s.G, ze: s.ze, h: s.G + s.ze }; // h≥0 su archi G, h≤0 su archi ζ
+  }
+  function Gdot(P, td){               // Ġ per differenza centrata
+    return (prov.F(P[0], P[1], td + H).G - prov.F(P[0], P[1], td - H).G) / (2*H);
+  }
+  function bisB(b0, v0, b1, fn, td, C){ // radice di fn(bordo(brg)) per bisezione
+    var lo = b0, hi = b1, vlo = v0;
+    for(var i = 0; i < 22; i++){   // 2π/96 dimezzato 22 volte ≈ 3e-9 rad: oltre il necessario
+      var bm = 0.5*(lo + hi), e = edge(C, bm, td);
+      if(!e) return null;
+      var vm = fn(e);
+      if((vlo < 0) !== (vm < 0)){ hi = bm; } else { lo = bm; vlo = vm; }
+    }
+    return edge(C, 0.5*(lo + hi), td);
+  }
+  // direzione di marcia (solo dove l'asse tocca la Terra: altrove salta)
+  function trackDir(td){
+    var a = prov.center(td - 0.02), b = prov.center(td + 0.02);
+    if(!a || !b || a.grazing || b.grazing) return null;
+    var v = locKm(a, b), l = Math.hypot(v[0], v[1]);
+    return l < 1e-9 ? null : [v[0]/l, v[1]/l];
+  }
+  function refTrack(){
+    for(var dt = 0; dt <= 2.0; dt += 1/60){
+      var tr = trackDir(prov.t0 + dt) || trackDir(prov.t0 - dt);
+      if(tr) return tr;
+    }
+    return [0, 1];
+  }
+  // --- campiona i due punti-limite all'istante td ---
+  var lastTrack = null;
+  function sample(td, seeds){
+    var C = interior(td, seeds);
+    if(!C){                            // strozzatura (ibride) o regione vuota
+      var c = prov.center(td);
+      if(c){ var g = prov.F(c[0], c[1], td);
+        if(Math.abs(g.G) < PINCH && g.ze > -1e-6) return { N: c, S: c, pinch: true }; }
+      return null;
+    }
+    var tr = trackDir(td) || lastTrack; if(tr) lastTrack = tr;
+    var E = new Array(NB), b;
+    for(b = 0; b < NB; b++) E[b] = edge(C, 2*Math.PI*b/NB, td, b);
+    var cand = [];
+    for(b = 0; b < NB; b++){
+      var e0 = E[b], e1 = E[(b + 1) % NB]; if(!e0 || !e1) continue;
+      var b0 = 2*Math.PI*b/NB, b1 = 2*Math.PI*(b + 1)/NB;
+      if(e0.h > 0 && e1.h > 0){        // arco G–G: cerca la tangenza Ġ=0
+        var d0 = Gdot(e0.p, td), d1 = Gdot(e1.p, td);
+        if((d0 < 0) !== (d1 < 0)){
+          var r = bisB(b0, d0, b1, function(e){ return Gdot(e.p, td); }, td, C);
+          if(r) cand.push({ p: r.p, k: 'env' });
+        }
+      } else if((e0.h > 0) !== (e1.h > 0)){ // spigolo G∧ζ (bordo d'ombra alba/tramonto)
+        var r2 = bisB(b0, e0.h, b1, function(e){ return e.h; }, td, C);
+        if(r2) cand.push({ p: r2.p, k: 'cor' });
+      }
+    }
+    if(!cand.length) return { N: C, S: C, pinch: true };
+    var qN = -1e18, qS = 1e18, N = null, Sp = null, kN = 'env', kS = 'env';
+    for(var i = 0; i < cand.length; i++){
+      var P = cand[i].p, v = locKm(C, P);
+      var q = tr ? (tr[1]*v[0] - tr[0]*v[1]) : v[0]; // distanza trasversale con segno
+      if(q > qN){ qN = q; N = P; kN = cand[i].k; }
+      if(q < qS){ qS = q; Sp = P; kS = cand[i].k; }
+    }
+    return { N: N, S: Sp, kN: kN, kS: kS, C: C };
+  }
+  // --- estremi temporali della fascia ---
+  function findEnd(tdIn, dir){
+    var td = tdIn, step = 1/30, lastIn = tdIn, seedP = interior(tdIn), guard = 0;
+    var seed = function(){ return seedP ? [seedP] : null; };
+    while(guard++ < 400){
+      var t2 = td + dir*step, ip = interior(t2, seed());
+      if(ip){ lastIn = t2; td = t2; seedP = ip; }
+      else{
+        var misses = 1;                // strozzature ibride: esigi 3 vuoti consecutivi
+        var probe1 = t2 + dir*step, probe2 = t2 + dir*2*step;
+        var ip1 = interior(probe1, seed()), ip2 = interior(probe2, seed());
+        if(!ip1) misses++;
+        if(!ip2) misses++;
+        if(misses >= 3){
+          var a = lastIn, bt = t2;
+          for(var i = 0; i < 24; i++){
+            var m = 0.5*(a + bt), im = interior(m, seed());
+            if(im){ a = m; seedP = im; } else bt = m;
+          }
+          return a;
+        }
+        td = probe2; if(ip2){ lastIn = probe2; seedP = ip2; }
+      }
+      if(Math.abs(td - tdIn) > 5.5) break;
+    }
+    return lastIn;
+  }
+  /* ---------- CAPPUCCI: contorno del campo-unione U(P)=min_t F(P,t) ---------- */
+  function Ufield(w0, w1){
+    var n = Math.max(28, Math.round((w1 - w0)*3600/5)); // pre-scan ogni ~5 s
+    if(n > 300) n = 300;
+    return function(P){
+      var best = 1e18, bi = 0, i, f;
+      for(i = 0; i <= n; i++){
+        f = FF(P[0], P[1], w0 + (w1 - w0)*i/n);
+        if(f < best){ best = f; bi = i; }
+      }
+      var a = w0 + (w1 - w0)*Math.max(0, bi - 1)/n, b = w0 + (w1 - w0)*Math.min(n, bi + 1)/n;
+      for(i = 0; i < 18; i++){         // sezione aurea sul minimo
+        var m1 = a + (b - a)*0.381966, m2 = b - (b - a)*0.381966;
+        if(FF(P[0], P[1], m1) <= FF(P[0], P[1], m2)) b = m2; else a = m1;
+      }
+      var tm = 0.5*(a + b), fm = FF(P[0], P[1], tm);
+      return fm < best ? fm : best;
+    };
+  }
+  function gradOf(U, P){               // gradiente numerico per km (nord, est)
+    var cs = Math.max(0.03, Math.cos(P[0]*RAD));
+    var dLa = 1/111.2, dLo = 1/(111.2*cs);
+    return [(U([P[0]+dLa, P[1]]) - U([P[0]-dLa, P[1]]))/2,
+            (U([P[0], P[1]+dLo]) - U([P[0], P[1]-dLo]))/2];
+  }
+  // cammina il contorno U=0 da A a B (dirHint: verso iniziale, [nord,est])
+  function walkContour(U, A, B, dirHint, step, maxSteps){
+    var out = [], P = [A[0], A[1]], tPrev = null, it;
+    for(it = 0; it < maxSteps; it++){
+      var g = gradOf(U, P), gl = Math.hypot(g[0], g[1]);
+      if(gl < 1e-12) return null;
+      var t = [-g[1]/gl, g[0]/gl];
+      var ref = tPrev || dirHint;
+      if(t[0]*ref[0] + t[1]*ref[1] < 0){ t[0] = -t[0]; t[1] = -t[1]; }
+      tPrev = t;
+      var Q = dst(P[0], P[1], Math.atan2(t[1], t[0]), step);
+      var gDir = Math.atan2(g[1], g[0]);           // direzione di salita (riusata)
+      for(var k = 0; k < 5; k++){      // correzione Newton verso U=0
+        var f = U(Q);
+        var corr = Math.max(-0.7*step, Math.min(0.7*step, -f/gl));
+        if(Math.abs(corr) < 0.015) break;
+        Q = dst(Q[0], Q[1], gDir, corr);
+        if(k === 2){ var gg = gradOf(U, Q); var ggl = Math.hypot(gg[0], gg[1]);
+          if(ggl > 1e-12){ gl = ggl; gDir = Math.atan2(gg[1], gg[0]); } }
+      }
+      P = Q;
+      if(moveKm(P, B) < 1.6*step) return out; // arrivo (B è già nel poligono)
+      out.push([P[0], P[1]]);
+    }
+    return null;
+  }
+  // cappuccio: da A a B attorno all'estremità, contorno dell'unione [w0,w1]
+  function capArc(w0, w1, A, B, dirHint){
+    var U = Ufield(w0, w1);
+    var lim = Math.ceil(5200/CAPSTEP);
+    var arc = walkContour(U, A, B, dirHint, CAPSTEP, lim);
+    if(arc) return arc;
+    arc = walkContour(U, A, B, [-dirHint[0], -dirHint[1]], CAPSTEP, lim);
+    return arc;                        // null ⇒ i due punti verranno uniti in corda
+  }
+  /* --------------------------------- corpo --------------------------------- */
+  if(!interior(prov.t0)){
+    var found = null;
+    for(var dt0 = 0.05; dt0 <= 1.0 && !found; dt0 += 0.05){
+      if(interior(prov.t0 + dt0)) found = prov.t0 + dt0;
+      else if(interior(prov.t0 - dt0)) found = prov.t0 - dt0;
+    }
+    if(!found) return null;
+    prov = Object.assign({}, prov, { t0: found });
+  }
+  lastTrack = refTrack();
+  var ta = findEnd(prov.t0, -1), tb = findEnd(prov.t0, +1);
+  // zona solida: campioni con entrambi i limiti di tipo inviluppo, stabili
+  // il punto-limite d'inviluppo e' GENUINO solo se non risulta interno all'ombra in
+  // ALTRI istanti (vicino ai cappucci la tangenza dG/dt=0 puo' esistere ancora, ma il
+  // punto viene ricoperto poco prima/dopo: il confine vero li' e' il contorno
+  // dell'UNIONE, gestito da capArc). Test difensivo: F(P, td±1..6 min) ≥ -1e-5 (~60 m).
+  function envTrue(P, td){
+    for(var q = 0; q < 6; q++){
+      var dt2 = [1, -1, 3, -3, 6, -6][q]/60;
+      if(FF(P[0], P[1], td + dt2) < -1e-5) return false;
+    }
+    return true;
+  }
+  function solidFrom(t, dir){
+    for(var k = 0; k <= 45; k++){      // fino a 15 min dall'estremo, passi di 20 s
+      var td = t + dir*k*20/3600;
+      var s = sample(td);
+      if(s && !s.pinch && s.kN === 'env' && s.kS === 'env' &&
+         envTrue(s.N, td) && envTrue(s.S, td)){
+        var s2 = sample(td + dir*45/3600), s3 = sample(td + dir*90/3600);
+        if(s2 && s3 && !s2.pinch && !s3.pinch &&
+           s2.kN === 'env' && s2.kS === 'env' && s3.kN === 'env' && s3.kS === 'env' &&
+           envTrue(s2.N, td + dir*45/3600) && envTrue(s2.S, td + dir*45/3600) &&
+           envTrue(s3.N, td + dir*90/3600) && envTrue(s3.S, td + dir*90/3600))
+          return td;
+      }
+    }
+    return t + dir*300/3600;           // fallback: 5 min dentro
+  }
+  var tSA = solidFrom(ta + 1/7200, +1), tSB = solidFrom(tb - 1/7200, -1);
+  if(tSA >= tSB){ tSA = ta + (tb - ta)*0.25; tSB = tb - (tb - ta)*0.25; }
+  // --- sweep adattivo della zona solida ---
+  var north = [], south = [], tds = [], kinds = [];
+  var DT_MIN = 1/16000, DT_MAX = 1/40;
+  var td = tSA, dt = 1/240, prevN = null, prevS = null, guard = 0;
+  while(td <= tSB + 1e-9 && guard++ < MAXPT){
+    var seeds = prevN ? [prevN, prevS] : null;
+    var s = sample(td, seeds), redo;
+    for(redo = 0; redo < 6 && s && !s.pinch && prevN && dt > DT_MIN*1.0001; redo++){
+      var mv0 = Math.max(moveKm(prevN, s.N), moveKm(prevS, s.S));
+      if(mv0 <= 2.2*STEP_KM) break;
+      var tdPrev = tds.length ? tds[tds.length - 1] : tSA;
+      dt = Math.max(DT_MIN, (td - tdPrev)*0.5*STEP_KM/mv0);
+      td = tdPrev + dt;
+      if(td > tSB) td = tSB;
+      s = sample(td, seeds);
+    }
+    if(s){
+      north.push(s.N); south.push(s.S); tds.push(td);
+      kinds.push(s.pinch ? 'pin' : 'env');
+      if(prevN && !s.pinch){
+        var mv = Math.max(moveKm(prevN, s.N), moveKm(prevS, s.S));
+        if(mv > 1e-6) dt = Math.max(DT_MIN, Math.min(DT_MAX, dt*STEP_KM/mv));
+      }
+      prevN = s.N; prevS = s.S;
+    }
+    if(td < tSB && td + dt > tSB) td = tSB; else td += dt;
+  }
+  if(north.length < 3) return null;
+  // --- cappucci dall'unione radente (con margine dentro la zona solida) ---
+  var trA = trackDir(tSA) || lastTrack, trB = trackDir(tSB) || lastTrack;
+  var capA = capArc(ta, Math.min(tSA + 120/3600, tb), south[0], north[0],
+                    [-trA[0], -trA[1]]) || [];
+  var capB = capArc(Math.max(tSB - 120/3600, ta), tb,
+                    north[north.length - 1], south[south.length - 1], trB) || [];
+  // poligono chiuso: capA(S0→N0) + nord + capB(Nn→Sn) + sud invertito
+  var poly = [south[0]].concat(capA, [north[0]]);
+  for(var i2 = 1; i2 < north.length; i2++) poly.push(north[i2]);
+  poly = poly.concat(capB);
+  for(var i3 = south.length - 1; i3 >= 0; i3--) poly.push(south[i3]);
+  return { north: north, south: south, td: tds, kind: kinds,
+           poly: poly, capA: capA, capB: capB, ta: ta, tb: tb, tSA: tSA, tSB: tSB };
+}
+/* provider besseliano (Espenak): stessa matematica del click (sep) */
+function espenakBandProvider(Esp, id){
+  var E = Esp.byId(id); if(!E) return null;
+  return {
+    t0: E.t0,
+    F: function(la, lo, td){ var s = Esp.sepTd(E, td, la, lo);
+        return { G: s.m - Math.abs(s.L2), ze: s.ze }; },
+    center: function(td){ var c = Esp.centralTd(E, td); if(!c) return null;
+        var p = [c.lat, c.lon]; p.grazing = !!c.grazing; return p; }
+  };
+}
+
+/* provider EFFEMERIDE (fallback): eclissi future senza elementi Espenak nel
+   catalogo. Geometria 3D dell'app (shadowGeometry) campionata su nodi di
+   Chebyshev e interpolata con polinomi (differenze divise di Newton), come i
+   polinomi besseliani: F diventa economica quanto quella Espenak. */
+function ephemBandProvider(){
+  const peak=S.glob.peak, BE_E2=0.00669438;
+  const T0=-5.0, T1=5.0, NN=11;
+  function rawGeom(td){
+    const time=peak.AddDays(td/24), gs=shadowGeometry(time);
+    const rot=A.Rotation_EQJ_EQD(time);
+    const mE=A.RotateVector(rot,new A.Vector(gs.moon.x*KM_AU,gs.moon.y*KM_AU,gs.moon.z*KM_AU,time));
+    const uE=A.RotateVector(rot,new A.Vector(gs.u.x,gs.u.y,gs.u.z,time));
+    const th=A.SiderealTime(time)*15*RAD, c=Math.cos(th), s=Math.sin(th);
+    return [c*mE.x+s*mE.y, -s*mE.x+c*mE.y, mE.z,
+            c*uE.x+s*uE.y, -s*uE.x+c*uE.y, uE.z,
+            (R_SUN_KM-R_MOON_KM)/(gs.D*KM_AU)];
+  }
+  const nodes=[], vals=[];
+  for(let k=0;k<NN;k++){
+    const x=Math.cos(Math.PI*(k+0.5)/NN), td=0.5*(T0+T1)+0.5*(T1-T0)*x;
+    nodes.push(td); vals.push(rawGeom(td));
+  }
+  const coef=[];
+  for(let c=0;c<7;c++){
+    const d=vals.map(v=>v[c]);
+    for(let j=1;j<NN;j++)for(let i=NN-1;i>=j;i--)d[i]=(d[i]-d[i-1])/(nodes[i]-nodes[i-j]);
+    coef.push(d);
+  }
+  const _FM=new Map();                 // memo: stesso td -> stesso vettore (esatto)
+  function fit(td){
+    if(td<T0)td=T0; if(td>T1)td=T1;   // fuori finestra: clamp (ombra lontana, F>0)
+    const h=_FM.get(td); if(h)return h;
+    const out=new Array(7);
+    for(let c=0;c<7;c++){
+      let s2=coef[c][NN-1];
+      for(let i=NN-2;i>=0;i--)s2=s2*(td-nodes[i])+coef[c][i];
+      out[c]=s2;
+    }
+    if(_FM.size>512)_FM.clear();
+    _FM.set(td,out);
+    return out;
+  }
+  return {
+    t0:0,
+    F:function(la,lo,td){
+      const g=fit(td), phi=la*RAD, lam=lo*RAD;
+      const ul=Math.hypot(g[3],g[4],g[5])||1, ux=g[3]/ul, uy=g[4]/ul, uz=g[5]/ul;
+      const Nn=R_E_EQ/Math.sqrt(1-BE_E2*Math.sin(phi)*Math.sin(phi));
+      const X=Nn*Math.cos(phi)*Math.cos(lam), Y=Nn*Math.cos(phi)*Math.sin(lam), Z=Nn*(1-BE_E2)*Math.sin(phi);
+      const wx=X-g[0], wy=Y-g[1], wz=Z-g[2];
+      const xi=wx*ux+wy*uy+wz*uz;
+      const rx=wx-xi*ux, ry=wy-xi*uy, rz=wz-xi*uz;
+      const rho=Math.hypot(rx,ry,rz), rumb=Math.abs(R_MOON_KM-xi*g[6]);
+      const rl=Math.hypot(X,Y,Z)||1;
+      return {G:(rho-rumb)/R_E_EQ, ze:-(X*ux+Y*uy+Z*uz)/rl};
+    },
+    center:function(td){
+      const time=peak.AddDays(td/24), gs=shadowGeometry(time);
+      const ax=axisEarth(time,gs), ll=eqdToLatLon(time,ax.eqd);
+      const p=[ll[0],ll[1]]; p.grazing=!ax.hit; return p;
+    }
+  };
+}
+/* fascia dell'eclissi corrente: Espenak se disponibile (coerente col click),
+   altrimenti effemeride. null per le parziali (nessuna fascia). */
+function computeBandLimits(){
+  let prov=null;
+  if(typeof Espenak!=='undefined'&&Espenak.sepTd&&Espenak.byId(S.ecl.id))
+    prov=espenakBandProvider(Espenak,S.ecl.id);
+  else if(S.ecl.kind!=='Parziale')
+    prov=ephemBandProvider();
+  if(!prov)return null;
+  return umbralLimitCurves(prov);
+}
+
+/* ============================================================================
+   MOTORE CURVE DI PARZIALITÀ — isolinee esatte della magnitudine massima
+   ----------------------------------------------------------------------------
+   Le zone "parziale ≥ livello" NON vengono più ricavate da griglia+blur+
+   marching squares (bordi ondulati): ogni curva è il contorno esatto
+     U_L(P) = min_td max( L − mag(P,td), −ζ(P,td), clamp_lat ) = 0
+   cioè il confine della regione dove la magnitudine massima raggiunta col
+   Sole sopra l'orizzonte è ≥ L. mag e ζ vengono dagli stessi elementi
+   besseliani del click (o dall'effemeride per eclissi senza elementi):
+   coerenza garantita fra colore della mappa e valori cliccati.
+   Il contorno è percorso con lo stesso predictor–corrector dei cappucci
+   della fascia; il clamp a ±84.6° chiude le regioni artiche/antartiche come
+   faceva la vecchia griglia (Mercator non mostra oltre ±85°).
+   ========================================================================== */
+function partialLevelRings(provP, levels, opt){
+  'use strict';
+  opt = opt || {};
+  var RAD = Math.PI/180, DEG = 180/Math.PI;
+  var LATCAP = 84.6, LATW = 0.02;      // clamp latitudini estreme (come la griglia)
+  var SPAN = opt.span || 3.6;          // ore attorno a t0 in cui cercare il massimo
+  var NPRE = opt.nPre || 44;           // pre-scan del massimo su td (~10 min)
+  function dst(la, lo, brg, km){
+    var d = km/6371, f1 = la*RAD, l1 = lo*RAD;
+    var f2 = Math.asin(Math.sin(f1)*Math.cos(d) + Math.cos(f1)*Math.sin(d)*Math.cos(brg));
+    var l2 = l1 + Math.atan2(Math.sin(brg)*Math.sin(d)*Math.cos(f1),
+                             Math.cos(d) - Math.sin(f1)*Math.sin(f2));
+    return [f2*DEG, ((l2*DEG + 540) % 360) - 180];
+  }
+  function locKm(a, b){
+    var dlo = b[1] - a[1]; while(dlo > 180) dlo -= 360; while(dlo < -180) dlo += 360;
+    return [(b[0] - a[0])*111.2, dlo*111.2*Math.cos(0.5*(a[0]+b[0])*RAD)];
+  }
+  function moveKm(a, b){ var v = locKm(a, b); return Math.hypot(v[0], v[1]); }
+  var _MG = {mag:0, ze:0};             // scratch riusato: niente allocazioni nel percorso caldo
+  var magInto = provP.magInto || function(la,lo,td,o){var s=provP.mag(la,lo,td);o.mag=s.mag;o.ze=s.ze;};
+  function FL(level, la, lo, td, noClamp){
+    magInto(la, lo, td, _MG);
+    var f = level - _MG.mag;
+    if(-_MG.ze > f) f = -_MG.ze;
+    if(noClamp) return f;
+    var c = (Math.abs(la) - LATCAP)*LATW;
+    return c > f ? c : f;
+  }
+  function makeU(level, noClamp){
+    var T0 = provP.t0 - SPAN, T1 = provP.t0 + SPAN, n = NPRE;
+    return function(P){
+      var best = 1e18, bi = 0, i, f;
+      for(i = 0; i <= n; i++){
+        f = FL(level, P[0], P[1], T0 + (T1 - T0)*i/n, noClamp);
+        if(f < best){ best = f; bi = i; }
+      }
+      var a = T0 + (T1 - T0)*Math.max(0, bi - 1)/n, b = T0 + (T1 - T0)*Math.min(n, bi + 1)/n;
+      for(i = 0; i < 14; i++){
+        var m1 = a + (b - a)*0.381966, m2 = b - (b - a)*0.381966;
+        if(FL(level, P[0], P[1], m1, noClamp) <= FL(level, P[0], P[1], m2, noClamp)) b = m2; else a = m1;
+      }
+      var fm = FL(level, P[0], P[1], 0.5*(a + b), noClamp);
+      return fm < best ? fm : best;
+    };
+  }
+  function gradOf(U, P){
+    var cs = Math.max(0.03, Math.cos(P[0]*RAD));
+    var dLa = 1/111.2, dLo = 1/(111.2*cs);
+    return [(U([P[0]+dLa, P[1]]) - U([P[0]-dLa, P[1]]))/2,
+            (U([P[0], P[1]+dLo]) - U([P[0], P[1]-dLo]))/2];
+  }
+  // punto interno (U<0) partendo dal seed (pattern search)
+  function interior(U, seed){
+    var la = seed[0], lo = seed[1], f = U([la, lo]);
+    if(f < -1e-6) return [la, lo];
+    var s = 0.4;
+    for(var it = 0; it < 70 && s > 5e-5; it++){
+      var bla = la, blo = lo, bf = f, imp = false;
+      for(var k = 0; k < 8; k++){
+        var a = k*Math.PI/4, cs = Math.max(0.03, Math.cos(la*RAD));
+        var la2 = Math.max(-89.9, Math.min(89.9, la + s*Math.cos(a))), lo2 = lo + s*Math.sin(a)/cs;
+        var f2 = U([la2, lo2]);
+        if(f2 < bf){ bf = f2; bla = la2; blo = lo2; imp = true; }
+      }
+      if(imp){ la = bla; lo = blo; f = bf; } else s *= 0.55;
+      if(f < -1e-6) return [la, lo];
+    }
+    return null;
+  }
+  // punto del contorno lungo un rilevamento dal punto interno (o null)
+  function edgeAt(U, C, brg){
+    var r0 = 0, r1 = 60, guard = 0, p = dst(C[0], C[1], brg, r1), f1 = U(p);
+    while(f1 < 0 && guard++ < 22){ r0 = r1; r1 *= 1.7; if(r1 > 26000) break;
+      p = dst(C[0], C[1], brg, r1); f1 = U(p); }
+    if(f1 < 0) return null;
+    for(var i = 0; i < 36; i++){
+      var rm = 0.5*(r0 + r1);
+      if(U(dst(C[0], C[1], brg, rm)) < 0) r0 = rm; else r1 = rm;
+    }
+    var rr = 0.5*(r0 + r1);
+    return { p: dst(C[0], C[1], brg, rr), r: rr, brg: brg };
+  }
+  function firstEdge(U, C){
+    var eq = C[0] > 0 ? Math.PI : 0;   // verso l'equatore
+    var offs = [0, Math.PI/3, -Math.PI/3, 2*Math.PI/3, -2*Math.PI/3, Math.PI];
+    var fallback = null;
+    for(var k = 0; k < offs.length; k++){
+      var e = edgeAt(U, C, eq + offs[k]);
+      if(!e) continue;
+      if(Math.abs(e.p[0]) < LATCAP - 0.3) return e;  // bordo fisico: ok
+      if(!fallback) fallback = e;                     // clamp: solo come riserva
+    }
+    return fallback;
+  }
+  // cammina il contorno CHIUSO U=0 a partire da A (torna in A).
+  // La chiusura richiede posizione vicina E direzione concorde col tangente
+  // iniziale: passare accanto ad A sull'altro bordo di una striscia stretta
+  // non deve chiudere l'anello prematuramente.
+  function walkLoop(U, A, step, maxSteps){
+    var out = [[A[0], A[1]]], P = [A[0], A[1]], tPrev = null, t0Dir = null, it;
+    var offClamp = false;              // il cammino ha mai lasciato il clamp?
+    for(it = 0; it < maxSteps; it++){
+      var g = gradOf(U, P), gl = Math.hypot(g[0], g[1]);
+      if(gl < 1e-12) return null;
+      var t = [-g[1]/gl, g[0]/gl];
+      if(tPrev && (t[0]*tPrev[0] + t[1]*tPrev[1] < 0)){ t[0] = -t[0]; t[1] = -t[1]; }
+      tPrev = t;
+      var sub = step, Q, tries, okStep = false;
+      for(tries = 0; tries < 6; tries++){
+        Q = dst(P[0], P[1], Math.atan2(t[1], t[0]), sub);
+        var gDir = Math.atan2(g[1], g[0]), gl2 = gl, f = 0, fFresh = false;
+        for(var k = 0; k < 6; k++){
+          f = U(Q); fFresh = true;
+          var corr = Math.max(-0.7*sub, Math.min(0.7*sub, -f/gl2));
+          if(Math.abs(corr) < 0.02) break;
+          Q = dst(Q[0], Q[1], gDir, corr); fFresh = false;
+          if(k === 2 || k === 4){ var gg = gradOf(U, Q), ggl = Math.hypot(gg[0], gg[1]);
+            if(ggl > 1e-12){ gl2 = ggl; gDir = Math.atan2(gg[1], gg[0]); } }
+        }
+        // passo valido solo se resta SUL contorno (|U| piccolo) e non salta
+        var fQ = fFresh ? f : U(Q);            // riusa l'ultima U(Q) se Q non e' cambiato (identico)
+        if(moveKm(P, Q) <= 1.9*step && Math.abs(fQ) < 2.5e-4){ okStep = true; break; }
+        sub *= 0.5;                            // spigolo: riprova piu' corto
+      }
+      if(!okStep) return null;                 // impossibile seguire il contorno
+      P = Q;
+      if(!t0Dir) t0Dir = tPrev;
+      if(Math.abs(P[0]) < LATCAP - 0.15) offClamp = true;
+      if(it === 40 && !offClamp) return null;  // sta girando sul cerchio-clamp
+      if(it > 12 && moveKm(P, A) < 1.35*step &&
+         (tPrev[0]*t0Dir[0] + tPrev[1]*t0Dir[1]) > 0.3) return out; // anello chiuso
+      out.push([P[0], P[1]]);
+    }
+    return null;                        // non si è chiuso: anomalia
+  }
+  function inRing(la, lo, ring){       // winding nonzero (anelli compatti)
+    var u = [], prev = null, i;
+    for(i = 0; i < ring.length; i++){
+      var l = ring[i][1];
+      if(prev !== null){ while(l - prev > 180) l -= 360; while(l - prev < -180) l += 360; }
+      u.push([ring[i][0], l]); prev = l;
+    }
+    var mn = 1e9, mx = -1e9;
+    for(i = 0; i < u.length; i++){ if(u[i][1] < mn) mn = u[i][1]; if(u[i][1] > mx) mx = u[i][1]; }
+    var l0 = lo; while(l0 < mn) l0 += 360; while(l0 > mx && l0 - 360 >= mn - 1e-9) l0 -= 360;
+    var w = 0;
+    for(i = 0; i < u.length; i++){
+      var a = u[i], b = u[(i + 1) % u.length];
+      var isL = (b[1] - a[1])*(la - a[0]) - (l0 - a[1])*(b[0] - a[0]);
+      if(a[0] <= la){ if(b[0] > la && isL > 0) w++; }
+      else{ if(b[0] <= la && isL < 0) w--; }
+    }
+    return w !== 0;
+  }
+  // traccia un anello del livello dato a partire da un punto interno
+  function traceFrom(U, C, level, lenCap){
+    var A = firstEdge(U, C);
+    if(!A) return null;
+    var opp = edgeAt(U, C, A.brg + Math.PI);
+    var dia = A.r + (opp ? opp.r : A.r);
+    var base = level > 0.3 ? 12 : 14;
+    var step = Math.max(4, Math.min(base, dia/60));
+    var LEN = lenCap || 58000;
+    var ring = walkLoop(U, A.p, step, Math.ceil(LEN/step) + 60);
+    if(!ring){ step = Math.max(3, step*0.5);
+      ring = walkLoop(U, A.p, step, Math.ceil(LEN/step) + 60); }
+    if(!ring || ring.length <= 8) return null;
+    for(var sv = 0; sv < ring.length; sv += 25)     // sanity: contorno vero
+      if(Math.abs(U(ring[sv])) > 6e-4) return null;
+    return ring;
+  }
+  // proprieta' di una componente: avvolgimento, lato, polo racchiuso, clamp-puro
+  function compInfo(ring, U){
+    var wind = 0, mean = 0, minAbs = 91, iMin = 0, allClamp = true, i;
+    for(i = 0; i < ring.length; i++){
+      if(i){ var dl = ring[i][1] - ring[i-1][1];
+        while(dl > 180) dl -= 360; while(dl < -180) dl += 360; wind += dl; }
+      mean += ring[i][0];
+      var al = Math.abs(ring[i][0]);
+      if(al < minAbs){ minAbs = al; iMin = i; }
+      if(al < LATCAP - 0.15) allClamp = false;
+    }
+    var sgn = (mean/ring.length) >= 0 ? 1 : -1, pole = null;
+    if(Math.abs(wind) > 300){
+      var pv = [Math.max(-84.3, Math.min(84.3, ring[iMin][0] + sgn*0.6)), ring[iMin][1]];
+      if(U(pv) < 0) pole = sgn > 0 ? 'N' : 'S';
+    }
+    return { ring: ring, wind: wind, sgn: sgn, pole: pole, allClamp: allClamp };
+  }
+  // il punto sta nella regione racchiusa da una componente gia' tracciata?
+  function insideComp(la, lo, ci){
+    if(Math.abs(ci.wind) > 300){       // anello avvolgente: test lato-polo
+      var best = 1e9, bl = 0, i;
+      for(i = 0; i < ci.ring.length; i++){
+        var dl = Math.abs(ci.ring[i][1] - lo) % 360;
+        if(dl > 180) dl = 360 - dl;
+        if(dl < best){ best = dl; bl = ci.ring[i][0]; }
+      }
+      return ci.sgn > 0 ? la > bl : la < bl;
+    }
+    return inRing(la, lo, ci.ring);
+  }
+  function nearComp(ring, comps){      // duplicato? (primo vertice ~su un anello esistente)
+    for(var c = 0; c < comps.length; c++){
+      var R = comps[c].ring;
+      for(var i = 0; i < R.length; i += 2){
+        var v = locKm(ring[0], R[i]);
+        if(Math.hypot(v[0], v[1]) < 22) return true;
+      }
+    }
+    return false;
+  }
+  var rings = [];
+  for(var li = 0; li < levels.length; li++){
+    var level = levels[li], U = makeU(level);
+    var comps = [];
+    var C = interior(U, provP.seed());
+    if(C){ var r1 = traceFrom(U, C, level);
+      if(r1){ var i1 = compInfo(r1, U); if(!i1.allClamp) comps.push(i1); } }
+    // COMPONENTI AGGIUNTIVE: il clamp polare puo' spezzare la regione in piu'
+    // parti (es. lobo + scheggia oltre il polo). Scansione a griglia dei punti
+    // interni non ancora racchiusi dalle componenti tracciate.
+    var attempts = 0;
+    for(var gla = -82; gla <= 82 && comps.length < 4 && attempts < 8; gla += 8){
+      for(var glo = -176; glo < 180 && comps.length < 4 && attempts < 8; glo += 12){
+        if(U([gla, glo]) > -1e-4) continue;
+        var covered = false;
+        for(var ci = 0; ci < comps.length && !covered; ci++)
+          if(insideComp(gla, glo, comps[ci])) covered = true;
+        if(covered) continue;
+        attempts++;
+        var r2 = traceFrom(U, [gla, glo], level, 20000);
+        if(!r2 || nearComp(r2, comps)) continue;
+        var i2 = compInfo(r2, U);
+        if(!i2.allClamp) comps.push(i2);
+      }
+    }
+    var wrappedN = false, wrappedS = false;
+    for(var co = 0; co < comps.length; co++){
+      if(comps[co].pole === 'N') wrappedN = true;
+      if(comps[co].pole === 'S') wrappedS = true;
+      rings.push({ level: level, ring: comps[co].ring, pole: comps[co].pole });
+    }
+    // CALOTTA POLARE: se il polo appartiene alla regione (senza clamp) e nessun
+    // anello del livello lo avvolge gia', la striscia oltre ±84.6° va aggiunta.
+    var Un = makeU(level, true);
+    for(var ps = 0; ps < 2; ps++){
+      var sg = ps === 0 ? 1 : -1;
+      if(sg > 0 ? wrappedN : wrappedS) continue;
+      var has = false;
+      for(var pl = 0; pl < 8 && !has; pl++)
+        if(Un([sg*(pl < 4 ? 87 : 86.2), (pl % 4)*90 - 90]) < -1e-4) has = true;
+      if(has) rings.push({ level: level, cap: sg > 0 ? 'N' : 'S' });
+    }
+  }
+  return rings.length ? rings : null;
+}
+/* provider di magnitudine besseliana (Espenak): stessa mag del click */
+function espenakPartialProvider(Esp, id){
+  var E = Esp.byId(id); if(!E) return null;
+  return {
+    t0: E.t0,
+    mag: function(la, lo, td){ var s = Esp.sepTd(E, td, la, lo);
+      var den = s.L1 + s.L2;
+      return { mag: den ? (s.L1 - s.m)/den : 0, ze: s.ze }; },
+    magInto: function(la, lo, td, o){ var s = Esp.sepTd(E, td, la, lo);
+      var den = s.L1 + s.L2;
+      o.mag = den ? (s.L1 - s.m)/den : 0; o.ze = s.ze; },
+    seed: function(){ var c = Esp.centralTd(E, E.t0); return c ? [c.lat, c.lon] : [0, 0]; }
+  };
+}
+
+/* provider EFFEMERIDE per la parzialità (eclissi senza elementi Espenak,
+   incluse le sole-parziali): geometria campionata su nodi di Chebyshev e
+   interpolata (come il provider della fascia), con in piu' tan f1 per la
+   penombra. mag besseliana: (L1'−m')/(L1'+L2'). */
+function ephemPartialProvider(){
+  const peak=S.glob.peak, BE_E2=0.00669438;
+  const T0=-5.0, T1=5.0, NN=11;
+  function rawGeom(td){
+    const time=peak.AddDays(td/24), gs=shadowGeometry(time);
+    const rot=A.Rotation_EQJ_EQD(time);
+    const mE=A.RotateVector(rot,new A.Vector(gs.moon.x*KM_AU,gs.moon.y*KM_AU,gs.moon.z*KM_AU,time));
+    const uE=A.RotateVector(rot,new A.Vector(gs.u.x,gs.u.y,gs.u.z,time));
+    const th=A.SiderealTime(time)*15*RAD, c=Math.cos(th), s=Math.sin(th);
+    const D=gs.D*KM_AU;
+    return [c*mE.x+s*mE.y, -s*mE.x+c*mE.y, mE.z,
+            c*uE.x+s*uE.y, -s*uE.x+c*uE.y, uE.z,
+            (R_SUN_KM-R_MOON_KM)/D, (R_SUN_KM+R_MOON_KM)/D];
+  }
+  const nodes=[], vals=[];
+  for(let k=0;k<NN;k++){
+    const x=Math.cos(Math.PI*(k+0.5)/NN), td=0.5*(T0+T1)+0.5*(T1-T0)*x;
+    nodes.push(td); vals.push(rawGeom(td));
+  }
+  const coef=[];
+  for(let c=0;c<8;c++){
+    const d=vals.map(v=>v[c]);
+    for(let j=1;j<NN;j++)for(let i=NN-1;i>=j;i--)d[i]=(d[i]-d[i-1])/(nodes[i]-nodes[i-j]);
+    coef.push(d);
+  }
+  const _FM=new Map();                 // memo: stesso td -> stesso vettore (esatto)
+  function fit(td){
+    if(td<T0)td=T0; if(td>T1)td=T1;
+    const h=_FM.get(td); if(h)return h;
+    const out=new Array(8);
+    for(let c=0;c<8;c++){
+      let s2=coef[c][NN-1];
+      for(let i=NN-2;i>=0;i--)s2=s2*(td-nodes[i])+coef[c][i];
+      out[c]=s2;
+    }
+    if(_FM.size>512)_FM.clear();
+    _FM.set(td,out);
+    return out;
+  }
+  return {
+    t0:0,
+    mag:function(la,lo,td){const o={mag:0,ze:0};this.magInto(la,lo,td,o);return o;},
+    magInto:function(la,lo,td,o){
+      const g=fit(td), phi=la*RAD, lam=lo*RAD;
+      const ul=Math.hypot(g[3],g[4],g[5])||1, ux=g[3]/ul, uy=g[4]/ul, uz=g[5]/ul;
+      const Nn=R_E_EQ/Math.sqrt(1-BE_E2*Math.sin(phi)*Math.sin(phi));
+      const X=Nn*Math.cos(phi)*Math.cos(lam), Y=Nn*Math.cos(phi)*Math.sin(lam), Z=Nn*(1-BE_E2)*Math.sin(phi);
+      const wx=X-g[0], wy=Y-g[1], wz=Z-g[2];
+      const xi=wx*ux+wy*uy+wz*uz;
+      const rx=wx-xi*ux, ry=wy-xi*uy, rz=wz-xi*uz;
+      const rho=Math.hypot(rx,ry,rz);
+      const L1=R_MOON_KM+xi*g[7], L2=xi*g[6]-R_MOON_KM, den=L1+L2;
+      const rl=Math.hypot(X,Y,Z)||1;
+      o.mag=den?(L1-rho)/den:0; o.ze=-(X*ux+Y*uy+Z*uz)/rl;
+    },
+    seed:function(){
+      const time=peak.AddDays(0), gs=shadowGeometry(time);
+      const ax=axisEarth(time,gs), ll=eqdToLatLon(time,ax.eqd);
+      return [ll[0],ll[1]];
+    }
+  };
+}
+/* curve di parzialita' dell'eclissi corrente (0.5% / 40% / 80%) */
+function computePartialRings(){
+  let prov=null;
+  if(typeof Espenak!=='undefined'&&Espenak.sepTd&&Espenak.byId(S.ecl.id))
+    prov=espenakPartialProvider(Espenak,S.ecl.id);
+  else
+    prov=ephemPartialProvider();
+  if(!prov)return null;
+  return partialLevelRings(prov,[0.005,0.4,0.8]);
 }
 
 /* --- ECEF → geodetiche (formula chiusa di Bowring: stabile anche ai poli) --- */
@@ -2928,6 +3923,10 @@ function umbraFootprint(time,NPSI){
   // realHits<NPSI   -> impronta RADENTE: alcune generatrici mancano la Terra e
   // vengono chiuse lungo il terminatore -> anello a falce, inaffidabile per i bordi.
   ring.realHits=realHits; ring.npsi=NPSI; ring.full=(realHits===NPSI);
+  // direzione del Sole in coordinate terrestri-fisse (= -u ruotato): gia' disponibile
+  // qui a costo zero; evita a computeBandCore un secondo shadowGeometry per impronta.
+  { let sx=-(cth*ud[0]+sth*ud[1]), sy=sth*ud[0]-cth*ud[1], sz=-ud[2];
+    const sl=Math.hypot(sx,sy,sz)||1; ring.sunEF=[sx/sl,sy/sl,sz/sl]; }
   return realHits>=3?ring:null;
 }
 
@@ -2936,19 +3935,26 @@ function umbraFootprint(time,NPSI){
    poi blurField() (sfocatura), non una griglia fitta (che sarebbe lentissima). */
 function maxMagField(){
   const B=MAP.band, STEP=0.85, NX=Math.round(360/STEP)+1, NY=Math.round(172/STEP)+1; // lon -180..180, lat -86..86
-  const f=new Float32Array(NX*NY);
+  const f=new Float32Array(NX*NY), sup=new Float32Array(NX*NY);
   const cosL=new Float64Array(NY), sinL=new Float64Array(NY);
   for(let iy=0;iy<NY;iy++){const la=(-86+iy*STEP)*RAD;cosL[iy]=Math.cos(la);sinL[iy]=Math.sin(la);}
   const cosG=new Float64Array(NX), sinG=new Float64Array(NX);
   for(let ix=0;ix<NX;ix++){const lo=(-180+ix*STEP)*RAD;cosG[ix]=Math.cos(lo);sinG[ix]=Math.sin(lo);}
+  // Il campo viene calcolato anche POCO OLTRE il terminatore (Sole fino a
+  // ~-3.4°, du<=NIGHT): il massimo di un'eclissi parziale cade ESATTAMENTE sul
+  // terminatore e troncare il campo lì creava uno spigolo che il blur poi
+  // deformava (le isolinee 40/80% si ritiravano proprio dal punto di massimo).
+  // Il lato notte si taglia in buildOverlays con la maschera 'sup' (supporto
+  // STRETTO: Sole >= orizzonte, coerente col test del click).
+  const NIGHT=0.06*6371;
   for(let si=0;si<B.samples.length;si+=4){const sm=B.samples[si];
     const [mx,my,mz]=sm.mEF,[ux,uy,uz]=sm.uEF;
     for(let iy=1;iy<NY-1;iy++){
       const cl=cosL[iy]*6371, sl=sinL[iy]*6371;
       for(let ix=1;ix<NX-1;ix++){
         const px=cl*cosG[ix], py=cl*sinG[ix], pz=sl;
-        // Sole sopra l'orizzonte? (direzione -u ≈ verso il Sole)
-        if((px*ux+py*uy+pz*uz)>0.05*6371) continue;
+        const du=px*ux+py*uy+pz*uz;
+        if(du>NIGHT) continue;
         const wx=px-mx, wy=py-my, wz=pz-mz;
         const xi=wx*ux+wy*uy+wz*uz;
         if(xi<=0) continue;
@@ -2957,11 +3963,13 @@ function maxMagField(){
         const rpen=R_MOON_KM+xi*sm.tanf1, rumb=Math.abs(R_MOON_KM-xi*sm.tanf2);
         if(rho>=rpen) continue;
         const mag=1-Math.max(0,(rho-rumb)/(rpen-rumb));
-        const k=iy*NX+ix; if(mag>f[k])f[k]=mag;
+        const k=iy*NX+ix;
+        if(mag>f[k])f[k]=mag;
+        if(du<=0)sup[k]=1;    // eclissi visibile qui (Sole sopra l'orizzonte)
       }
     }
   }
-  return {f,NX,NY,STEP};
+  return {f,sup,NX,NY,STEP};
 }
 /* --- sfocatura del campo (box blur separabile ~ gaussiana) + AZZERA il bordo
    della griglia. Toglie le faccette da griglia delle isolinee e ammorbidisce il
@@ -3132,23 +4140,92 @@ function buildOverlays(){
   // le impronte e le isolinee restano un blocco unico anche oltre i ±180°.
   const cl=B.hits.filter(s=>Math.abs(s.la)<84.5).map(s=>[s.la,s.lo]);
   const clU=unwrap(cl);
-  // campo SFOCATO (isolinee lisce + terminatore netto, stile timeanddate)
-  const F=MAP.band.Fb||(MAP.band.Fb=blurField(MAP.band.F||(MAP.band.F=maxMagField()),2,3));
+  // campo SFOCATO (isolinee lisce, stile timeanddate) + MASCHERA GIORNO.
+  // Il campo grezzo ora si estende poco oltre il terminatore (vedi maxMagField):
+  // il blur non deforma più le isolinee proprio dove l'eclissi è massima.
+  // Il lato notte si taglia col SUPPORTO STRETTO sfocato (Sb, Sole>=orizzonte):
+  // rampa corta centrata poco fuori dal terminatore -> bordo liscio, niente
+  // sconfino nella notte (coerente col test del click) e zone 40/80% che
+  // arrivano fino al punto di massimo delle eclissi parziali. La vecchia
+  // maschera larga (blur 5,5 su ~6°) sopprimeva il campo fino a ~8° dal
+  // terminatore: il marker del massimo finiva nella zona colorata sbagliata.
+  // CURVE DI PARZIALITÀ dal motore esatto (contorni della magnitudine massima
+  // percorsi punto a punto: bordi lisci che seguono la curvatura terrestre).
+  // PR==null -> fallback al vecchio campo raster sfocato (isoRings).
+  const PR=B.prings;
+  let F=null;
+  if(!PR){
+    F=MAP.band.Fb;
+    if(!F){
+      const raw=MAP.band.F||(MAP.band.F=maxMagField());
+      F=blurField(raw,2,3);
+      const Sb=blurField({f:raw.sup,NX:raw.NX,NY:raw.NY,STEP:raw.STEP},2,3);
+      for(let k=0;k<F.f.length;k++) F.f[k]*=Math.min(1,Math.max(0,(Sb.f[k]-0.12)/0.15));
+      MAP.band.Fb=F;
+    }
+  }
   let lo0=0;
   if(clU.length){let s=0;for(const p of clU)s+=p[1];lo0=s/clU.length;}
   else{const pm=(typeof PARTIAL_MAPS!=="undefined")?PARTIAL_MAPS[B.id]:null;
     if(pm&&pm.vb){const v=pm.vb.split(" ").map(Number);lo0=v[0]+v[2]/2;}
-    else{let best=-1,bk=0;for(let k=0;k<F.f.length;k++)if(F.f[k]>best){best=F.f[k];bk=k;}lo0=-180+(bk%F.NX);}}
+    else if(PR&&PR.length){const pr0=PR.find(r=>r.ring)||null;
+      if(pr0){const r0=pr0.ring;let prev=r0[0][1],acc=prev;
+        for(let i=1;i<r0.length;i++){let l=r0[i][1];while(l-prev>180)l-=360;while(l-prev<-180)l+=360;acc+=l;prev=l;}
+        lo0=((acc/r0.length+540)%360)-180;}}
+    else if(F){let best=-1,bk=0;for(let k=0;k<F.f.length;k++)if(F.f[k]>best){best=F.f[k];bk=k;}lo0=-180+(bk%F.NX)*F.STEP;}}
   // zone di parzialità: isolinee di magnitudine (qualsiasi / >40% / >80%)
   let partBB=L.latLngBounds([]); // bbox dell'area di parzialita (isolinea esterna)
   const isPartial=!cl.length;    // parziale: niente fascia -> contorno del limite + fill piu marcato, cosi e visibile
   for(const [lev,op] of [[0.005,isPartial?0.18:0.10],[0.4,0.12],[0.8,0.16]]){
-    for(let ring of isoRings(F,lev)){
-      ring=chaikin(chaikin(ring));
-      const u=unwrap(ring,lo0);
-      const outer=(lev===0.005);
-      L.polygon(u,{stroke:isPartial&&outer,color:'#ffce4d',weight:1.5,opacity:0.75,fillColor:'#ffb24d',fillOpacity:op,fillRule:'nonzero',interactive:false}).addTo(MAP.overlay);
-      if(lev===0.005)for(const p of u)if(Math.abs(p[0])<84.5)partBB.extend(p);
+    const outer=(lev===0.005);
+    const style={stroke:isPartial&&outer,color:'#ffce4d',weight:1.5,opacity:0.75,fillColor:'#ffb24d',fillOpacity:op,fillRule:'nonzero',interactive:false};
+    if(PR){
+      for(const pr of PR){
+        if(pr.level!==lev)continue;
+        if(pr.cap){
+          // calotta polare: la regione contiene il polo (il clamp a 84.6° la
+          // esclude dagli anelli). Striscia fino al bordo Mercator (85.05°).
+          const sc=pr.cap==='N'?1:-1;
+          L.polygon([[84.55*sc,lo0-180.5],[84.55*sc,lo0+180.5],[85.05*sc,lo0+180.5],[85.05*sc,lo0-180.5]],style).addTo(MAP.overlay);
+          continue;
+        }
+        // Avvolgimento in longitudine: un anello che circumnaviga il globo
+        // (regione che contiene un polo) e' largo 360°: dato che Leaflet non
+        // replica i vettori sulle copie del mondo, lo si disegna CONTINUO in
+        // TRE copie consecutive nel verso di percorrenza, unite in un solo
+        // poligono chiuso lungo ±85.05°.
+        let wind=0;
+        for(let wi=1;wi<pr.ring.length;wi++){
+          let dl=pr.ring[wi][1]-pr.ring[wi-1][1];
+          while(dl>180)dl-=360; while(dl<-180)dl+=360;
+          wind+=dl;
+        }
+        let u, bbPts;
+        if(Math.abs(wind)>300){
+          let pole=pr.pole;
+          if(!pole){let mlat=0;for(const p of pr.ring)mlat+=p[0];pole=(mlat/pr.ring.length>=0)?'N':'S';}
+          const la=pole==='N'?85.05:-85.05;
+          let u2=unwrap(pr.ring,pr.ring[0][1]);             // continuo, senza salti
+          const k=Math.round((lo0-(u2[0][1]+u2[u2.length-1][1])/2)/360)*360;
+          if(k)u2=u2.map(p=>[p[0],p[1]+k]);                 // copia centrale ~su lo0
+          const drift=u2[u2.length-1][1]-u2[0][1];          // ~±360
+          const wC=u2.map(p=>[p[0],p[1]-360]), eC=u2.map(p=>[p[0],p[1]+360]);
+          const all=(drift<0?eC:wC).concat(u2, drift<0?wC:eC);
+          u=all.concat([[la,all[all.length-1][1]],[la,all[0][1]]]);
+          bbPts=u2;                                          // bbox: solo copia centrale
+        } else {
+          u=unwrap(pr.ring,lo0); bbPts=u;
+        }
+        L.polygon(u,style).addTo(MAP.overlay);
+        if(outer)for(const p of bbPts)if(Math.abs(p[0])<84.5)partBB.extend(p);
+      }
+    } else {
+      for(let ring of isoRings(F,lev)){
+        ring=chaikin(chaikin(chaikin(ring)));
+        const u=unwrap(ring,lo0);
+        L.polygon(u,style).addTo(MAP.overlay);
+        if(outer)for(const p of u)if(Math.abs(p[0])<84.5)partBB.extend(p);
+      }
     }
   }
   // fascia centrale: inviluppo liscio (limiti nord/sud) + cappucci esatti
@@ -3159,11 +4236,17 @@ function buildOverlays(){
   const fIdx=[]; for(let i=0;i<footU.length;i++)if(full[i])fIdx.push(i);
   const bandPts=[];
   const drawBand=rings=>L.polygon(rings,{stroke:false,fillColor:fill,fillOpacity:fop,fillRule:'nonzero',interactive:false}).addTo(MAP.overlay);
-  if(fIdx.length>=8){
-    // FASCIA DI TOTALITA'/ANULARITA' (metodo timeanddate): rasterizza le impronte
+  const lim=B.limits;
+  if(lim&&lim.poly&&lim.poly.length>100){
+    // FASCIA dal motore delle curve limite: inviluppo esatto del bordo d'ombra
+    // (G=0, dG/dt=0, stessi elementi besseliani del click) + cappucci sul
+    // terminatore dal contorno dell'unione. Bordi netti, lisci, esatti.
+    const u=unwrap(lim.poly, lo0);
+    drawBand([u]);
+    for(const p of u)bandPts.push(p);
+  } else if(fIdx.length>=8){
+    // FALLBACK (vecchio metodo raster): rasterizza le impronte
     // d'ombra ritagliate al lato GIORNO -> maschera piena -> sfoca -> isolinea.
-    // Gli estremi seguono la curvatura del TERMINATORE (cappuccio arrotondato),
-    // non finiscono a punta e non sconfinano nella notte.
     const tot=totalityRings(B,footU);
     if(tot){
       drawBand(tot.map(norm));
@@ -3207,8 +4290,12 @@ function buildOverlays(){
 /* === GREATEST ECLIPSE: punto di massimo + icona riconoscibile sulla mappa ===
    Totale/anulare: intersezione dell'asse d'ombra col globo all'istante di
    massimo (S.glob.peak) -> identico al preset "Punto di massimo".
-   Parziale (asse che manca la Terra): massimo del campo di magnitudine,
-   raffinato localmente. L'icona e' cliccabile e apre la scena da quel punto. */
+   Parziale (asse che manca la Terra): punto CANONICO di massimo (def. Espenak/
+   NASA) = punto della superficie più vicino all'asse d'ombra all'istante di
+   minima distanza asse-centro Terra. Calcolo ANALITICO dai campioni della
+   fascia: cade esattamente sul terminatore (Sole all'orizzonte), dove
+   convergono le isolinee. Validato vs EclipseWise (magnitudine ±0.005,
+   posizione ~0.1° sul canone). L'icona e' cliccabile e apre la scena. */
 function magAt(la,lo){
   const B=MAP.band; const laR=la*RAD, loR=lo*RAD;
   const clat=Math.cos(laR)*6371, slat=Math.sin(laR)*6371;
@@ -3216,7 +4303,10 @@ function magAt(la,lo){
   let best=0;
   for(let si=0;si<B.samples.length;si++){const sm=B.samples[si];
     const mx=sm.mEF[0],my=sm.mEF[1],mz=sm.mEF[2],ux=sm.uEF[0],uy=sm.uEF[1],uz=sm.uEF[2];
-    if((px*ux+py*uy+pz*uz)>0.05*6371) continue;
+    // Sole >= orizzonte (tolleranza 1 m): PRIMA era 0.05*6371 (Sole fino a
+    // -2.87°), incoerente col campo della mappa -> il punto poteva derivare
+    // oltre il terminatore, FUORI dalle curve di parzialita' disegnate.
+    if((px*ux+py*uy+pz*uz)>1e-3) continue;
     const wx=px-mx, wy=py-my, wz=pz-mz;
     const xi=wx*ux+wy*uy+wz*uz; if(xi<=0) continue;
     const rx=wx-xi*ux, ry=wy-xi*uy, rz=wz-xi*uz;
@@ -3241,18 +4331,35 @@ function greatestEclipsePoint(){
     B.samples.forEach((s,i)=>{ if(s.hit){const d=Math.abs(i-span); if(d<bd){bd=d;bi=i;}} });
     if(bi>=0){const s=B.samples[bi]; return {la:s.la,lo:s.lo,kind:s.ann?'annular':'total'};}
   }
-  const F=B.F||(B.F=maxMagField());
-  let bk=-1,best=-1; for(let k=0;k<F.f.length;k++) if(F.f[k]>best){best=F.f[k];bk=k;}
-  if(bk<0||best<=0) return null;
-  const ix=bk%F.NX, iy=(bk-ix)/F.NX;
-  let la=-86+iy*F.STEP, lo=-180+ix*F.STEP, bm=magAt(la,lo), h=F.STEP;
-  for(let lvl=0;lvl<3;lvl++){ h/=5;
-    for(let dy=-5;dy<=5;dy++)for(let dx=-5;dx<=5;dx++){
-      const la2=la+dy*h, lo2=lo+dx*h, m=magAt(la2,lo2);
-      if(m>bm){bm=m;la=la2;lo=lo2;}
-    }
+  // PARZIALE: punto canonico analitico. Per ogni campione, q = piede della
+  // perpendicolare dal centro della Terra all'asse d'ombra (m + t*u); il
+  // minimo di |q| nel tempo individua il massimo dell'eclissi, e il punto
+  // sulla superficie e' P = R*q/|q| (tangente: Sole esattamente all'orizzonte).
+  // PRIMA: argmax su griglia 0.85° + hill-climb su un campo increspato e con
+  // soglia d'orizzonte lasca -> ~0.2-0.8° di rumore, a volte lato notte.
+  const n=B.samples.length, d2s=new Float64Array(n);
+  let bi=-1,bd=Infinity;
+  for(let i=0;i<n;i++){const sm=B.samples[i],m=sm.mEF,u=sm.uEF;
+    const mu=m[0]*u[0]+m[1]*u[1]+m[2]*u[2];
+    const qx=m[0]-mu*u[0], qy=m[1]-mu*u[1], qz=m[2]-mu*u[2];
+    d2s[i]=qx*qx+qy*qy+qz*qz;
+    if(d2s[i]<bd){bd=d2s[i];bi=i;}
   }
-  return {la,lo,kind:'partial',mag:bm};
+  if(bi<0) return null;
+  // raffinamento parabolico del minimo fra i campioni adiacenti (dt=120 s)
+  let del=0;
+  if(bi>0&&bi<n-1){const a=d2s[bi-1],b=d2s[bi],c=d2s[bi+1],den=a-2*b+c;
+    if(Math.abs(den)>1e-9)del=Math.max(-1,Math.min(1,0.5*(a-c)/den));}
+  const j=del>=0?Math.min(n-1,bi+1):Math.max(0,bi-1), w=Math.abs(del);
+  const s0=B.samples[bi], s1=B.samples[j];
+  const m=[0,1,2].map(k=>s0.mEF[k]+(s1.mEF[k]-s0.mEF[k])*w);
+  let u=[0,1,2].map(k=>s0.uEF[k]+(s1.uEF[k]-s0.uEF[k])*w);
+  const ul=Math.hypot(u[0],u[1],u[2])||1; u=[u[0]/ul,u[1]/ul,u[2]/ul];
+  const mu=m[0]*u[0]+m[1]*u[1]+m[2]*u[2];
+  const q=[m[0]-mu*u[0], m[1]-mu*u[1], m[2]-mu*u[2]];
+  const ql=Math.hypot(q[0],q[1],q[2]); if(!(ql>0)) return null;
+  const la=Math.asin(q[2]/ql)*DEG, lo=Math.atan2(q[1],q[0])*DEG;
+  return {la,lo,kind:'partial',mag:magAt(la,lo)};
 }
 function eclMarkerSVG(kind,sz){
   sz=sz||44;
@@ -3293,8 +4400,13 @@ function addGreatestMarker(lo0){
   const mk=L.marker([gp.la,lo],{icon:icon,interactive:true,keyboard:false,zIndexOffset:1000}).addTo(MAP.overlay);
   let label;
   if(gp.kind==='partial'){
-    let pct=Math.round((gp.mag||0)*100);
-    try{ const obs=new A.Observer(gp.la,((gp.lo+540)%360)-180,0);
+    let pct=Math.round((gp.mag||0)*100), done=false;
+    // COERENZA: stessa sorgente del pannello del punto (Espenak) quando disponibile;
+    // il vecchio calcolo astronomy-engine resta come riserva.
+    try{ if(typeof Espenak!=='undefined'&&Espenak.byId(S.ecl.id)){
+           const r=Espenak.local(S.ecl.id,gp.la,((gp.lo+540)%360)-180);
+           if(r&&typeof r.obsc==='number'){pct=Math.round(r.obsc*100);done=true;} } }catch(e){}
+    if(!done)try{ const obs=new A.Observer(gp.la,((gp.lo+540)%360)-180,0);
          const loc=A.SearchLocalSolarEclipse(S.glob.peak.AddDays(-1.5),obs);
          const sm=sunMoonNow(loc.peak.time,obs); pct=Math.round(obscuration(sm.rS,sm.rM,sm.sep)*100);
     }catch(e){}
@@ -3308,7 +4420,7 @@ function setMarker(lat,lon){
   if(MAP.marker)MAP.overlay.removeLayer(MAP.marker);
   MAP.marker=L.circleMarker([lat,lon],{radius:9,color:'#ffb24d',weight:2.5,fillOpacity:0.15,fillColor:'#ffb24d'}).addTo(MAP.overlay);
 }
-addEventListener('resize',()=>{ if($('s3').classList.contains('on'))resizeSky(); if(MAP.map&&$('s2').classList.contains('on'))MAP.map.invalidateSize(); });
+addEventListener('resize',()=>{ if($('s3').classList.contains('on')){resizeSky(); renderScene._rk=''; SHADOWMAP._lastT=undefined;} if(MAP.map&&$('s2').classList.contains('on'))MAP.map.invalidateSize(); });
 
 /* =====================================================================
    SCELTA DEL PUNTO → circostanze locali → scena
@@ -3400,7 +4512,7 @@ function startScene(){
   SKY.seed=Math.abs(Math.sin(S.obs.lat*12.9898+S.obs.lon*78.233))*43758.5453%1;
   buildTimelineUI(); buildToggles(); buildTz();
   $('crumb3').innerHTML=`<b>${S.ecl.label}</b> · ${S.obs.lat.toFixed(3)}°, ${S.obs.lon.toFixed(3)}°`;
-  bindSky(); resizeSky(); show('s3'); SKY.starsCacheT=-1; SKY.constCacheT=-1; GRID.key=''; resetShadowMapScene(); closeBaily();
+  bindSky(); resizeSky(); show('s3'); SKY.starsCacheT=-1; SKY.constCacheT=-1; GRID.key=''; renderScene._rk=''; resetShadowMapScene(); closeBaily();
   if(!startScene.loop){startScene.loop=true; requestAnimationFrame(frame);}
 }
 
@@ -3463,6 +4575,7 @@ const SHADOWMAP={map:null,cv:null,ctx:null,_off:null,
 
 function resetShadowMapScene(){
   SHADOWMAP.fitDone=false; SHADOWMAP.epochRU=null; SHADOWMAP.visible=false;
+  SHADOWMAP._lastT=undefined; SHADOWMAP._lastObs=undefined;
   const h=$('shadowmap'); if(h)h.style.display='none';
 }
 
@@ -3532,6 +4645,10 @@ function updateShadowMap(time,sm){
   const host=$('shadowmap'); if(!host)return;
   if(!(S.show.shadowmap && MAP.band && MAP.band.foot && MAP.band.foot.length)){
     host.style.display='none'; SHADOWMAP.visible=false; return; }
+  // tempo e osservatore invariati -> l'inset e' gia' corretto: si evita di ricalcolare
+  // impronta e terminatore (costano varie chiamate astronomiche) mentre si trascina la vista.
+  const obsK=S.obs?S.obs.lat+','+S.obs.lon:'';
+  if(SHADOWMAP._lastT===S.t && SHADOWMAP._lastObs===obsK) return;
   if(!SHADOWMAP.map){ if(!ensureShadowMap()){host.style.display='none';return;} }
   if(!SHADOWMAP.fitDone){ host.style.display='block'; fitShadowMap(); }
   // impronta esatta del cono ORA; dmin = distanza del vertice PIÙ VICINO dal punto scelto.
@@ -3550,6 +4667,7 @@ function updateShadowMap(time,sm){
     resizeShadowCanvas(); SHADOWMAP.visible=true; }
   drawShadowFootprint(time,ring);
   const lab=$('shadowmap-alt'); if(lab)lab.textContent=Math.round(sm.hS.altitude)+'°';
+  SHADOWMAP._lastT=S.t; SHADOWMAP._lastObs=obsK;
 }
 
 // lat/lon -> punto contenitore, con anti-wrap relativo al punto scelto
@@ -3696,9 +4814,9 @@ function bindSky(){
   });
   cv.addEventListener('pointerup',()=>{drag=false;cv.classList.remove('drag');});
   cv.addEventListener('dblclick',()=>{S.view.follow=true;});
-  cv.addEventListener('wheel',e=>{e.preventDefault();S.view.fov=clamp(S.view.fov*(e.deltaY>0?1.18:0.85),1.2,100);},{passive:false});
+  cv.addEventListener('wheel',e=>{e.preventDefault();S.view.fov=clamp(S.view.fov*(e.deltaY>0?1.18:0.85),0.6,100);},{passive:false});
   cv.addEventListener('touchstart',e=>{if(e.touches.length===2)pinch=td(e);},{passive:true});
-  cv.addEventListener('touchmove',e=>{if(e.touches.length===2&&pinch){const d=td(e);S.view.fov=clamp(S.view.fov*pinch/d,1.2,100);pinch=d;e.preventDefault();}},{passive:false});
+  cv.addEventListener('touchmove',e=>{if(e.touches.length===2&&pinch){const d=td(e);S.view.fov=clamp(S.view.fov*pinch/d,0.6,100);pinch=d;e.preventDefault();}},{passive:false});
   cv.addEventListener('touchend',()=>{pinch=null;});
   function td(e){const a=e.touches[0],b=e.touches[1];return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);}
 }
@@ -3733,8 +4851,81 @@ function proj(az,alt){
    avvicinamento sia il crepuscolo a 360° anisotropo, per OGNI eclissi:
    velocità, obliquità, diametro e forma dell'ellisse al suolo sono
    impliciti nella geometria vera del cono all'istante t.
+   Fisica per-pacchetto (v0.6, verifica "ombra nel cielo" oltre fine fascia):
+   1) SCHERMO DELLA TERRA: ogni pacchetto d'aria e' illuminato solo se il
+      suo raggio verso il Sole non rade la Terra sotto la quota efficace di
+      schermatura (~9 km, estinzione dolce). Col Sole a -3° l'aria sotto
+      ~11 km e' al buio: senza schermo il cuneo d'ombra della Luna nel cielo
+      veniva ~1.5x piu' largo (38°->74° invece di 25°->49° tra alt 2° e 8°,
+      caso 2026-08-12 da 37.2N 9.2E) e l'anti-crepuscolo era solo un hack.
+   2) LENTE ESATTA: la frazione di Sole scoperta e' l'area vera della
+      sovrapposizione dei due dischi, non uno smoothstep sul raggio.
+   Scattering multiplo NON modellato: il pavimento resta la palette
+   "deep/steel" (validata sulla foto TSE Cile 2019: arco/ombra 5-60x).
    ===================================================================== */
 const GRID={W:224,H:128,cv:null,img:null,key:'',bb:null,bb2:null};
+/* ---- RETICOLO az/alt del campo d'ombra: separa la FISICA (rara) dal PAN/ZOOM (per frame).
+   out0/out1 dipendono solo da tempo+osservatore, NON dalla vista: si campionano su un
+   reticolo az/alt con margine attorno alla vista (in log10, interpolazione geometrica)
+   e trascinamento/zoom fanno solo un resample bilineare. Ricostruzione SOLO se: tempo
+   (quanto 250 ms), uscita dal margine, fov fuori [0.8,1.25]x, cambio luogo. Prima il
+   campo era ricalcolato a ogni 0.1 deg di pan: con la fisica v0.6 (~40-90 ms) i
+   trascinamenti erano a scatti e il primo caricamento pagava piu' ricalcoli pieni. */
+const LAT={L0:null,L1:null,W:240,H:128,tq:-1,az0:0,daz:1,alt0:-6,dalt:1,
+           vaz:0,valt:0,mAz:0,mAlt:0,fov:0,wrap:false,obsKey:''};
+function ensureLattice(time,obsv){
+  const tq=Math.round(S.t/250), fov=S.view.fov;
+  const obsKey=S.obs.lat.toFixed(4)+','+S.obs.lon.toFixed(4);
+  const F=projF();
+  const cH=Math.min(178,2*Math.atan(SKY.W/(4*F))*DEG),   // semi-ampiezza az visibile
+        cV=Math.min(120,2*Math.atan(SKY.H/(4*F))*DEG);
+  if(LAT.L0 && LAT.tq===tq && LAT.obsKey===obsKey
+     && Math.abs(angNorm(S.view.az-LAT.vaz))<LAT.mAz && Math.abs(S.view.alt-LAT.valt)<LAT.mAlt
+     && fov<LAT.fov*1.25 && fov>LAT.fov*0.8
+     && cH<=LAT.cH+2 && cV<=LAT.cV+2) return;             // resize: la finestra deve coprire lo schermo
+  const mAz=Math.max(12,cH*0.35), mAlt=Math.max(8,cV*0.35);
+  let az0,azSpan;
+  if(cH+mAz>=170){LAT.wrap=true;az0=0;azSpan=360;}
+  else{LAT.wrap=false;azSpan=2*(cH+mAz);az0=S.view.az-azSpan/2;}
+  const alt0=Math.max(-6,S.view.alt-cV-mAlt), alt1=Math.min(90,S.view.alt+cV+mAlt);
+  if(!LAT.L0){LAT.L0=new Float32Array(LAT.W*LAT.H);LAT.L1=new Float32Array(LAT.W*LAT.H);}
+  LAT.az0=az0;LAT.daz=azSpan/(LAT.wrap?LAT.W:(LAT.W-1));
+  LAT.alt0=alt0;LAT.dalt=(alt1-alt0)/(LAT.H-1);
+  LAT.tq=tq;LAT.vaz=S.view.az;LAT.valt=S.view.alt;
+  LAT.mAz=Math.max(2,mAz-3);LAT.mAlt=Math.max(2,mAlt-3);LAT.fov=fov;LAT.obsKey=obsKey;LAT.cH=cH;LAT.cV=cV;
+  const G=shadowFrame(time,obsv), out=[1,0];
+  for(let iy=0;iy<LAT.H;iy++){
+    const altR=Math.max(alt0+iy*LAT.dalt,0.2)*RAD;
+    for(let ix=0;ix<LAT.W;ix++){
+      rayBrightness((az0+ix*LAT.daz)*RAD,altR,G,out);
+      const k=iy*LAT.W+ix;
+      LAT.L0[k]=Math.log10(Math.max(out[0],1e-6));   // log-spazio: interpolare qui
+      LAT.L1[k]=Math.log10(Math.max(out[1],1e-6));   // preserva i bordi su piu' decadi
+    }
+  }
+  GRID.key='';                                        // forza il resample sul nuovo reticolo
+}
+function latSample(azD,altD,o){ // bilineare in log-spazio -> o=[log10(out0),log10(out1)]
+  let fx;
+  if(LAT.wrap){fx=((azD-LAT.az0)%360+360)%360/LAT.daz;}
+  else{const half=(LAT.W-1)*LAT.daz*0.5;                 // offset dal CENTRO finestra: clamp simmetrico
+    fx=clamp(angNorm(azD-LAT.az0-half)+half,0,2*half)/LAT.daz;}
+  const fy=clamp((altD-LAT.alt0)/LAT.dalt,0,LAT.H-1);
+  let ix0=Math.floor(fx), iy0=Math.floor(fy);
+  const tx=fx-ix0, ty=fy-iy0;
+  let ix1;
+  if(LAT.wrap){ix0%=LAT.W;ix1=(ix0+1)%LAT.W;}
+  else{ix0=Math.min(ix0,LAT.W-1);ix1=Math.min(ix0+1,LAT.W-1);}
+  const iy1=Math.min(iy0+1,LAT.H-1);
+  const a=iy0*LAT.W, b=iy1*LAT.W;
+  const l00=LAT.L0, l11=LAT.L1;
+  const t00=l00[a+ix0]+(l00[a+ix1]-l00[a+ix0])*tx,
+        t10=l00[b+ix0]+(l00[b+ix1]-l00[b+ix0])*tx;
+  o[0]=t00+(t10-t00)*ty;
+  const u00=l11[a+ix0]+(l11[a+ix1]-l11[a+ix0])*tx,
+        u10=l11[b+ix0]+(l11[b+ix1]-l11[b+ix0])*tx;
+  o[1]=u00+(u10-u00)*ty;
+}
 /* palette cielo veloce, senza allocazioni per cella (output identico a skyPalette) */
 const SKYP_DAY={zr:64,zg:128,zb:222,mr:120,mg:170,mb:235,hr:176,hg:205,hb:238};
 const SKYP_TW={zr:18,zg:34,zb:74,mr:64,mg:84,mb:128,hr:208,hg:124,hb:66};
@@ -3761,7 +4952,7 @@ function shadowFrame(time,obsv){ // geometria del cono all'istante (km, EQJ)
   const O=[ov.x*KM_AU,ov.y*KM_AU,ov.z*KM_AU];
   const D=g.D*KM_AU;
   const rotHE=A.CombineRotation(A.Rotation_HOR_EQD(time,obsv),A.Rotation_EQD_EQJ(time));
-  return {M,O,u:[g.u.x,g.u.y,g.u.z],D,
+  return {M,O,u:[g.u.x,g.u.y,g.u.z],D,OO:O[0]*O[0]+O[1]*O[1]+O[2]*O[2],
     tanf1:(R_SUN_KM+R_MOON_KM)/D, tanf2:(R_SUN_KM-R_MOON_KM)/D, rot:rotHE.rot};
 }
 function illumAt(x,y,z,G){ // frazione di Sole visibile dal punto (km, EQJ)
@@ -3770,22 +4961,42 @@ function illumAt(x,y,z,G){ // frazione di Sole visibile dal punto (km, EQJ)
   if(xi<=0)return 1;                          // lato Sole: tutto illuminato
   const rx=wx-xi*G.u[0],ry=wy-xi*G.u[1],rz=wz-xi*G.u[2];
   const rho=Math.sqrt(rx*rx+ry*ry+rz*rz);     // distanza dall'asse
-  const rpen=R_MOON_KM+xi*G.tanf1;
-  if(rho>=rpen)return 1;
-  const rumb=R_MOON_KM-xi*G.tanf2;            // <0 oltre l'apice → antumbra
-  if(rumb>=0){
-    if(rho<=rumb)return 0;                    // ombra piena
-    const t=(rho-rumb)/(rpen-rumb);           // penombra
-    return t*t*(3-2*t);
-  }
-  const c=R_MOON_KM*G.D/(R_SUN_KM*xi);        // rapporto raggi apparenti Luna/Sole
-  const Sann=Math.max(0,1-c*c);               // frazione visibile in anularità
-  const rant=-rumb;
-  if(rho<=rant)return Sann;
-  const t=(rho-rant)/(rpen-rant), s=t*t*(3-2*t);
-  return Sann+(1-Sann)*s;
+  if(rho>=R_MOON_KM+xi*G.tanf1)return 1;      // fuori penombra (uscita rapida, niente trig)
+  /* sovrapposizione ESATTA dei dischi Sole/Luna visti dal punto (niente smoothstep):
+     aS,aM raggi angolari, g separazione dei centri. La frazione scoperta vicino al
+     bordo dell'umbra cresce come la vera "falce" (~epsilon^1.5), non come t^2:
+     copre in un solo ramo totalita', anularita' e parziale. */
+  const aM=R_MOON_KM/Math.sqrt(xi*xi+rho*rho);
+  const aS=R_SUN_KM/(G.D+xi);
+  const g=Math.atan2(rho,xi)-rho/(G.D+xi);
+  if(g>=aS+aM)return 1;
+  const dd=Math.abs(aM-aS);
+  if(g<=dd)return aM>=aS?0:1-(aM*aM)/(aS*aS);
+  const c1=(g*g+aS*aS-aM*aM)/(2*g), c2=g-c1;
+  const A=aS*aS*Math.acos(clamp(c1/aS,-1,1))+aM*aM*Math.acos(clamp(c2/aM,-1,1))
+        -c1*Math.sqrt(Math.max(aS*aS-c1*c1,0))-c2*Math.sqrt(Math.max(aM*aM-c2*c2,0));
+  return Math.max(0,1-A/(Math.PI*aS*aS));
 }
-const STEPS=[2,5,10,18,30,50,80,120,180,260,360,480];
+const STEPS=[2,5,10,18,30,50,80,120,170,230,300,380,470,570,690,830,1000];
+const RB_STACK=new Float64Array(64);          // stack di suddivisione (s0,s1,S0,S1)*
+/* illuminazione del pacchetto d'aria a distanza s lungo il raggio:
+   cono lunare (lente esatta) x schermo dell'ombra della TERRA. Col Sole sotto
+   l'orizzonte l'aria bassa e densa NON e' illuminata: hg = quota minima (radente)
+   del raggio pacchetto->Sole, T = trasmissione con estinzione dolce (quota efficace
+   di schermatura ~9 km). Senza schermo l'aria vicina contava come piena luce e il
+   cuneo d'ombra nel cielo risultava ~1.5x piu' largo del vero. */
+function rbEval(s,G,dx,dy,dz,Ou,du,Od){
+  let S=illumAt(G.O[0]+dx*s,G.O[1]+dy*s,G.O[2]+dz*s,G);
+  if(S>0){
+    const Pu=Ou+s*du;                         // >0: pacchetto sul lato notte
+    if(Pu>0){
+      const P2=G.OO+2*s*Od+s*s;
+      const hg=Math.sqrt(Math.max(P2-Pu*Pu,0))-6371;
+      if(hg<80)S*=Math.exp(-6.5*Math.exp(-hg/9));
+    }
+  }
+  return S;
+}
 function rayBrightness(azR,altR,G,out){ // integrale di luce lungo il raggio
   const ca=Math.cos(altR), sa=Math.sin(altR);
   const hx=ca*Math.cos(azR), hy=-ca*Math.sin(azR), hz=sa; // HOR: x=N, y=O, z=zenit
@@ -3793,16 +5004,42 @@ function rayBrightness(azR,altR,G,out){ // integrale di luce lungo il raggio
   const dx=r[0][0]*hx+r[1][0]*hy+r[2][0]*hz,
         dy=r[0][1]*hx+r[1][1]*hy+r[2][1]*hz,
         dz=r[0][2]*hx+r[1][2]*hy+r[2][2]*hz;
-  let wsum=0,bsum=0,far=0,wfar=0,prev=0;
-  const RE=6371;
+  /* prodotti scalari per lo schermo della Terra (u = direzione della luce Sole->Luna) */
+  const Ou=G.O[0]*G.u[0]+G.O[1]*G.u[1]+G.O[2]*G.u[2],
+        du=dx*G.u[0]+dy*G.u[1]+dz*G.u[2],
+        Od=G.O[0]*dx+G.O[1]*dy+G.O[2]*dz;
+  let wsum=0,bsum=0,far=0,wfar=0;
+  const RE=6371, saf=Math.max(sa,-0.05), K=RB_STACK;
+  /* integrazione ADATTIVA: ogni segmento base viene suddiviso (fino a ds/16) dove
+     l'illuminazione varia bruscamente (bordo dell'umbra, linea d'alba in quota):
+     senza suddivisione il bordo cadeva "a scatti" tra un campione e l'altro
+     producendo festoni e terrazzamenti nel cielo renderizzato. */
+  let sprev=0, Sprev=rbEval(0.01,G,dx,dy,dz,Ou,du,Od);
   for(let i=0;i<STEPS.length;i++){
-    const s=STEPS[i], ds=s-prev; prev=s;
-    const h=Math.sqrt(RE*RE+s*s+2*RE*s*Math.max(sa,-0.05))-RE;
-    if(h>70)break;
-    const w=Math.exp(-h/8.5)*ds;
-    const S=illumAt(G.O[0]+dx*s,G.O[1]+dy*s,G.O[2]+dz*s,G);
-    wsum+=w; bsum+=w*S;
-    if(s>=120&&h<25){far+=w*S;wfar+=w;}       // luce lontana e bassa → arancio
+    const sb=STEPS[i], Sb=rbEval(sb,G,dx,dy,dz,Ou,du,Od), minDs=(sb-sprev)/16;
+    let sp=0;
+    K[sp++]=sprev;K[sp++]=sb;K[sp++]=Sprev;K[sp++]=Sb;
+    while(sp>0){
+      const S1=K[--sp],S0=K[--sp],s1=K[--sp],s0=K[--sp];
+      if(s1-s0>minDs && Math.abs(S1-S0)>0.30*(S0+S1)+2e-5){
+        const sm=0.5*(s0+s1), Sm=rbEval(sm,G,dx,dy,dz,Ou,du,Od);
+        K[sp++]=s0;K[sp++]=sm;K[sp++]=S0;K[sp++]=Sm;
+        K[sp++]=sm;K[sp++]=s1;K[sp++]=Sm;K[sp++]=S1;
+        continue;
+      }
+      const sm=0.5*(s0+s1);
+      const h=Math.sqrt(RE*RE+sm*sm+2*RE*sm*saf)-RE;
+      if(h>90)continue;
+      const w=Math.exp(-h/8.5)*(s1-s0), Sm2=0.5*(S0+S1);
+      wsum+=w; bsum+=w*Sm2;
+      /* luce lontana e bassa -> arancio: finestra DOLCE in s e in quota (la vecchia
+         soglia rigida s>=120 && h<25 quantizzava i campioni e creava bande orizzontali) */
+      const fl=w*sstep((sm-80)/140)*(1-sstep((h-16)/16));
+      far+=fl*Sm2; wfar+=fl;
+    }
+    sprev=sb; Sprev=Sb;
+    const hb=Math.sqrt(RE*RE+sb*sb+2*RE*sb*saf)-RE;
+    if(hb>80)break;
   }
   if(wsum<=0){out[0]=1;out[1]=0;return}
   out[0]=bsum/wsum; out[1]=wfar>0?far/wfar:0;
@@ -3835,17 +5072,24 @@ function blurGridRGB(d,W,H,r,passes){
         for(let t=-r;t<=r;t++){let yy=y+t;yy=yy<0?0:yy>=H?H-1:yy;const o=(yy*W+x)*3;s0+=B[o];s1+=B[o+1];s2+=B[o+2];}
         const o=(y*W+x)*3;A[o]=s0/k;A[o+1]=s1/k;A[o+2]=s2/k;}}
   }
-  for(let i=0,j=0;i<n;i++,j+=4){d[j]=A[i*3];d[j+1]=A[i*3+1];d[j+2]=A[i*3+2];}
+  /* riscrittura con DITHER statico (+-0.75): la griglia e' a 8 bit e sui gradienti
+     piatti del cielo scuro il passo di 1 unita' diventava una banda visibile larga
+     decine di px dopo l'upscale; il rumore sub-quanto la spezza (invisibile dopo blur) */
+  for(let i=0,j=0;i<n;i++,j+=4){
+    const dt=((i*73856093 ^ (i*19349663>>7))>>>9 & 255)/255-0.5;
+    d[j]=A[i*3]+dt;d[j+1]=A[i*3+1]+dt;d[j+2]=A[i*3+2]+dt;
+  }
 }
 function drawSkyGrid(ctx,time,obsv,lv,deep,sunAlt,sunAz){
   const key=Math.round(S.t/250)+'|'+S.view.az.toFixed(1)+'|'+S.view.alt.toFixed(1)+'|'+S.view.fov.toFixed(2)+'|'+SKY.W+'x'+SKY.H+'|'+(S.show.glow?1:0)+'|'+(sunAlt||0).toFixed(1)+'|'+(sunAz||0).toFixed(0);
   if(!GRID.cv){GRID.cv=document.createElement('canvas');GRID.cv.width=GRID.W;GRID.cv.height=GRID.H;}
+  ensureLattice(time,obsv);   // fisica: ricalcola solo su tempo/luogo/fov (azzera GRID.key se rifatta)
   if(key!==GRID.key){
     GRID.key=key;
-    const G=shadowFrame(time,obsv);
     const gc=GRID.cv.getContext('2d');
     if(!GRID.img)GRID.img=gc.createImageData(GRID.W,GRID.H);
-    const d=GRID.img.data, out=[1,0];
+    const d=GRID.img.data, outL=[0,0];
+    const lgE=Math.log10(lv.Efull), LGDARK=Math.log10(EDARK);   // dayLevel/tone via log gia' in reticolo
     const _F=projF(), _h0=S.view.alt*RAD, _a0=S.view.az*RAD, _ch0=Math.cos(_h0), _sh0=Math.sin(_h0), _cx=SKY.W/2, _cy=SKY.H/2;
     /* --- crepuscolo a 360°: rampa di colori presi dai TRAMONTI REALI in eclisse,
        interpolata per altezza del Sole. Stop S0(orizzonte) -> S3(cima banda, ~cielo blu).
@@ -3863,13 +5107,15 @@ function drawSkyGrid(ctx,time,obsv,lv,deep,sunAlt,sunAz){
     for(let s=0;s<4;s++){for(let c=0;c<3;c++){
       let v=TWL[s][c]+(TWM[s][c]-TWL[s][c])*_u1;
       if(_u2>0)v+=(TWH[s][c]-v)*_u2;
-      _TS[s][c]=v;
+      _TS[s][c]=v*lv.env;   // dopo il tramonto la rampa si spegne con la progressione naturale (mai piu' chiara del crepuscolo reale)
     }}
     const GLTOP =lerp(17,8,clamp(_sA/70,0,1));     // fascia piu' alta col Sole basso
     const GLGAIN=lerp(3.6,2.6,clamp(_sA/70,0,1));  // forza del mescolamento verso la rampa (alzata: fascia piena in totalità)
-    const twiOn=clamp((0.8-lv.g)/0.7,0,1);         // i colori di tramonto entrano solo quando la luce cala (≈ grani di Baily)
-    // asimmetria azimutale del crepuscolo (ombra della Terra): cresce col Sole basso, nulla a Sole alto
-    const ASYM=clamp((20-(sunAlt||0))/28,0,1), sunAzR=(sunAz||0)*RAD;
+    const twiOn=clamp((0.8-lv.g)/0.7,0,1)*lv.up;   // i colori di tramonto entrano solo quando la luce cala (≈ grani di Baily) e SOLO col Sole sopra l'orizzonte: sotto, la fascia schiarirebbe un cielo che deve solo scurirsi
+    // asimmetria azimutale del crepuscolo (ombra della Terra): cresce col Sole basso, nulla a Sole alto.
+    // Sotto -3 gradi si SPEGNE: li' l'anisotropia emerge fisicamente dallo schermo terrestre
+    // in rayBrightness (niente doppio conteggio).
+    const ASYM=clamp((20-(sunAlt||0))/28,0,1)*clamp(((sunAlt||0)+3)/5,0,1), sunAzR=(sunAz||0)*RAD;
     for(let gy=0;gy<GRID.H;gy++){
       const py=(gy+0.5)/GRID.H*SKY.H;
       for(let gx=0;gx<GRID.W;gx++){
@@ -3882,10 +5128,10 @@ function drawSkyGrid(ctx,time,obsv,lv,deep,sunAlt,sunAz){
           azD=(_a0+Math.atan2(xx*sc, rr*_ch0*cc-yy*_sh0*sc))*DEG;}
         let cr,cg,cb;
         {  // niente riempimento scuro sotto-orizzonte: con orizzonte piatto tutto cio' che sta sopra la linea e' cielo
-          rayBrightness(azD*RAD,Math.max(altD,0.2)*RAD,G,out);
+          latSample(azD,Math.max(altD,0.2),outL);   // campo d'ombra dal reticolo (log10 out0/out1)
           // luminosità del cielo dalla luce LOCALE (out0): l'orizzonte illuminato oltre l'ombra resta acceso
           // anche in totalità (anello arancione continuo) mentre il cielo alto (in ombra) va scuro
-          let Lc=clamp(lv.base*dayLevel(lv.Efull*out[0])+0.004,0,1.2);
+          let Lc=clamp(lv.base*sstep((lgE+outL[0]-LGDARK)/ELOGDEN)+0.004,0,1.2);
           // asimmetria del tramonto: verso il Sole più luminoso/caldo, lato opposto (ombra della Terra) più scuro
           const _toward=0.5*(1+Math.cos(azD*RAD-sunAzR)), _altFall=altD<38?1-altD/38:0;
           Lc=clamp(Lc*(1+(_toward*2-1)*ASYM*_altFall*0.55),0,1.2);
@@ -3895,8 +5141,8 @@ function drawSkyGrid(ctx,time,obsv,lv,deep,sunAlt,sunAz){
           else{const u=(t-0.35)/0.65; cr=PM[0]+(PZ[0]-PM[0])*u; cg=PM[1]+(PZ[1]-PM[1])*u; cb=PM[2]+(PZ[2]-PM[2])*u;}
           if(S.show.glow&&altD<GLTOP&&altD>-4){
             const vy=clamp(Math.max(altD,0)/GLTOP,0,1);
-            const k=tone(out[1])*Math.pow(1-tone(out[0]),1.8);     // anisotropia: forte verso il Sole
-            const env=vy<0.75?1:(1-(vy-0.75)/0.25);                // sfuma dolce nel cielo in cima
+            const k=clamp((outL[1]+4)/4,0,1)*Math.pow(1-clamp((outL[0]+4)/4,0,1),1.8); // = tone(out1)*(1-tone(out0))^1.8, anisotropia forte verso il Sole
+            const env=1-sstep((vy-0.7)/0.3);                       // sfuma dolce nel cielo in cima (C1: niente spigolo a vy=0.75)
             const ob=(1-Math.exp(-k*GLGAIN))*0.99*env*twiOn;       // saturazione MORBIDA (niente plateau) + ingresso ai grani di Baily
             let tr,tg,tb;                                          // colore rampa alla quota vy
             if(vy<1/3){const u=vy*3;       tr=TW0[0]+(TW1[0]-TW0[0])*u;tg=TW0[1]+(TW1[1]-TW0[1])*u;tb=TW0[2]+(TW1[2]-TW0[2])*u;}
@@ -3955,7 +5201,236 @@ function applyEspenakGeometry(sm){
   sm.rM=sm.rS*k;
   sm.sep=sepEsp;
 }
+
+/* ===== [ripristino] funzioni terreno/bussola/scala-alt/stelle/readout/durata =====
+   reinserite verbatim da bak-pre-polefix (erano andate perse nell'edit band-engine) ===== */
+/* Linee delle costellazioni (CONSTLINES): funzione RIPRISTINATA dal backup
+   bak-shadowphys — era andata persa in un edit e il pulsante "△ costellazioni"
+   bloccava la scena con un ReferenceError a ogni frame. */
+function drawConstellations(ctx,time,obs,L){
+  if(L>0.42)return;
+  if(Math.abs(S.t-SKY.constCacheT)>30000){
+    SKY.constCacheT=S.t; SKY.constCache=[];
+    const rotEQ=A.Rotation_EQJ_EQD(time);
+    for(const line of CONSTLINES){
+      const pts=[];
+      for(const [ra,dec] of line){
+        const v=A.RotateVector(rotEQ,A.VectorFromSphere(new A.Spherical(dec,ra*15,1),time));
+        const eq=A.EquatorFromVector(v);
+        const h=A.Horizon(time,obs,eq.ra,eq.dec,'normal');
+        pts.push([h.altitude,h.azimuth]);
+      }
+      SKY.constCache.push(pts);
+    }
+  }
+  const a=clamp((0.42-L)/0.42,0,1);
+  ctx.save();
+  ctx.strokeStyle=`rgba(120,150,205,${0.10+0.24*a})`; ctx.lineWidth=1;
+  for(const pts of SKY.constCache){
+    ctx.beginPath(); let pen=false;
+    for(const [alt,az] of pts){
+      const p=(alt>-1)?proj(az,alt):null;
+      if(p){ if(pen)ctx.lineTo(p[0],p[1]); else {ctx.moveTo(p[0],p[1]);pen=true;} } else pen=false;
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawStars(ctx,time,obs,L){
+  if(L>0.42)return;
+  if(Math.abs(S.t-SKY.starsCacheT)>30000){
+    SKY.starsCacheT=S.t; SKY.starsCache=[];
+    const rotEQ=A.Rotation_EQJ_EQD(time);
+    for(const [name,ra,dec,m] of STARS){
+      const v=A.RotateVector(rotEQ,A.VectorFromSphere(new A.Spherical(dec,ra*15,1),time));
+      const eq=A.EquatorFromVector(v);
+      const h=A.Horizon(time,obs,eq.ra,eq.dec,'normal');
+      if(h.altitude>-1)SKY.starsCache.push({name,alt:h.altitude,az:h.azimuth,m,pl:false});
+    }
+    for(const [body,name] of PLANETS){
+      try{
+        const eq=A.Equator(body,time,obs,true,true);
+        const h=A.Horizon(time,obs,eq.ra,eq.dec,'normal');
+        if(h.altitude>-1){const il=A.Illumination(body,time);
+          SKY.starsCache.push({name,alt:h.altitude,az:h.azimuth,m:il.mag,pl:true});}
+      }catch(err){}
+    }
+    for(const [body,name] of PLANETS_FAINT){
+      try{
+        const eq=A.Equator(body,time,obs,true,true);
+        const h=A.Horizon(time,obs,eq.ra,eq.dec,'normal');
+        if(h.altitude>-1){const il=A.Illumination(body,time);
+          SKY.starsCache.push({name,alt:h.altitude,az:h.azimuth,m:il.mag,pl:true,tele:true});}
+      }catch(err){}
+    }
+  }
+  const lim=lerp(-3.8,3.5,clamp((0.42-L)/0.42,0,1)); // soglia di visibilità
+  for(const s of SKY.starsCache){
+    if(s.tele){ // Urano/Nettuno: invisibili a occhio nudo → marcatore tratteggiato, solo coi nomi attivi
+      if(!S.show.nomi) continue;
+      const pT=proj(s.az,s.alt); if(!pT) continue;
+      ctx.save();
+      ctx.fillStyle='rgba(150,212,222,0.45)'; ctx.beginPath(); ctx.arc(pT[0],pT[1],1,0,7); ctx.fill();
+      ctx.strokeStyle='rgba(120,205,218,0.78)'; ctx.lineWidth=1; ctx.setLineDash([2,2]);
+      ctx.beginPath(); ctx.arc(pT[0],pT[1],3.4,0,7); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='rgba(170,222,232,0.9)'; ctx.font='italic 10px system-ui'; ctx.fillText(s.name,pT[0]+7,pT[1]-5);
+      ctx.restore(); continue;
+    }
+    if(s.m>lim)continue;
+    const p=proj(s.az,s.alt); if(!p)continue;
+    const vis=clamp((lim-s.m)/2.5,0.15,1);
+    const r=s.pl?2.2:clamp(2.0-s.m*0.45,0.7,2.4);
+    ctx.fillStyle=`rgba(255,255,${s.pl?230:255},${vis})`;
+    ctx.beginPath();ctx.arc(p[0],p[1],r,0,7);ctx.fill();
+    if(S.show.nomi){
+      const lab = s.pl ? (vis>0.4) : (s.m<=2.0 && !s.name.startsWith('HIP'));
+      if(lab){
+        const op = s.pl ? vis*0.95 : clamp(0.5+vis*0.45,0,0.95);
+        ctx.font='11px system-ui';
+        if(s.pl){ // pianeti: rosso corallo leggibile su cielo blu navy, con ombra sottile
+          ctx.fillStyle=`rgba(12,6,8,${op*0.7})`;  ctx.fillText(s.name,p[0]+6.7,p[1]-4.3);
+          ctx.fillStyle=`rgba(255,112,99,${op})`;  ctx.fillText(s.name,p[0]+6,p[1]-5);
+        } else {
+          ctx.fillStyle=`rgba(208,222,244,${op})`; ctx.fillText(s.name,p[0]+6,p[1]-5);
+        }
+      }
+    }
+  }
+}
+
+function drawGround(ctx,yHor,L){
+  const W=SKY.W,H=SKY.H;
+  const amb=clamp(L,0.004,1);
+  const fill=`rgb(${(amb*30)|0},${(amb*36)|0},${(amb*27)|0})`;
+  const line=`rgba(${(amb*120+28)|0},${(amb*140+34)|0},${(amb*120+28)|0},0.9)`;
+  // Orizzonte VERO: in proiezione stereografica e' un cerchio, quindi in genere CURVO
+  // (piatto SOLO con vista livellata, alt=0). Campiono proj(az,0) attorno all'azimut di
+  // vista e costruisco una polilinea a x crescente; il terreno riempie SOTTO la curva.
+  const a0=S.view.az;
+  const rt=[]; for(let d=0; d<=179; d++){ const p=proj(a0+d,0); if(!p) break; rt.push(p); if(p[0]>=W+2) break; }
+  const lf=[]; for(let d=1; d<=179; d++){ const p=proj(a0-d,0); if(!p) break; lf.push(p); if(p[0]<=-2) break; }
+  const poly=lf.reverse().concat(rt);
+  const spansW = poly.length>=2 && poly[0][0]<=1 && poly[poly.length-1][0]>=W-1;
+  if(!spansW){                         // fallback: orizzonte piatto (comportamento originale)
+    if(yHor>H+2) return;
+    const y=Math.max(0,Math.round(yHor));
+    ctx.fillStyle=fill; ctx.fillRect(0,y,W,H-y);
+    ctx.strokeStyle=line; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(0,y+0.75); ctx.lineTo(W,y+0.75); ctx.stroke();
+    return;
+  }
+  let ymin=Infinity; for(const p of poly){ if(p[1]<ymin) ymin=p[1]; }
+  if(ymin>H+2) return;                 // orizzonte tutto sotto lo schermo: niente terreno
+  ctx.fillStyle=fill;                  // riempimento terreno SOTTO la curva, fino al fondo canvas
+  ctx.beginPath();
+  ctx.moveTo(poly[0][0], poly[0][1]);
+  for(let i=1;i<poly.length;i++) ctx.lineTo(poly[i][0], poly[i][1]);
+  ctx.lineTo(W+2, H+2); ctx.lineTo(-2, H+2);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle=line; ctx.lineWidth=1.5; // linea d'orizzonte lungo la curva
+  ctx.beginPath();
+  ctx.moveTo(poly[0][0], poly[0][1]+0.75);
+  for(let i=1;i<poly.length;i++) ctx.lineTo(poly[i][0], poly[i][1]+0.75);
+  ctx.stroke();
+}
+
+function drawCompass(ctx){
+  const dirs=[['N',0],['NE',45],['E',90],['SE',135],['S',180],['SO',225],['O',270],['NO',315]];
+  ctx.font='600 12px system-ui';ctx.textAlign='center';
+  for(const [lab,az] of dirs){
+    const p=proj(az,0.4); if(!p||p[1]>SKY.H-6||p[1]<0)continue;
+    ctx.fillStyle='rgba(230,238,248,.75)';
+    ctx.fillText(lab,p[0],Math.min(p[1]+16,SKY.H-8));
+  }
+  ctx.textAlign='left';
+}
+
+function drawAltScale(ctx){
+  // scala dell'altezza (gradi sull'orizzonte) sul bordo sinistro, ADATTIVA allo zoom
+  const W=SKY.W,H=SKY.H;
+  const yTop=54, yBot=H-110;                         // banda libera tra barra alta e timeline
+  if(yBot-yTop<46) return;
+  const p0=proj(S.view.az,S.view.alt), p1=proj(S.view.az,S.view.alt+1);
+  if(!p0||!p1) return;
+  const dyDeg=Math.abs(p1[1]-p0[1])||1;              // pixel per grado al centro
+  const steps=[1,2,5,10,15,30,45];
+  let step=steps[steps.length-1];
+  for(const s of steps){ if(s*dyDeg>=52){ step=s; break; } }
+  const minor=(step>=10)?step/2:step;
+  ctx.save();
+  // striscia di fondo per leggibilità su qualunque cielo
+  const bg=ctx.createLinearGradient(0,0,54,0);
+  bg.addColorStop(0,'rgba(8,12,19,0.60)'); bg.addColorStop(1,'rgba(8,12,19,0)');
+  ctx.fillStyle=bg; ctx.fillRect(0,yTop-12,54,(yBot-yTop)+24);
+  // asse verticale
+  ctx.strokeStyle='rgba(200,214,236,.5)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(20,yTop); ctx.lineTo(20,yBot); ctx.stroke();
+  ctx.font='600 11px system-ui'; ctx.textAlign='left'; ctx.textBaseline='middle';
+  for(let alt=0; alt<=90.0001; alt+=minor){
+    const a=Math.round(alt);
+    const p=proj(S.view.az,a); if(!p) continue;
+    const y=p[1]; if(y<yTop||y>yBot) continue;
+    const lab=(a%step===0);
+    ctx.strokeStyle='rgba(208,221,240,'+(lab?0.78:0.4)+')'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(20,y); ctx.lineTo(20+(lab?9:5),y); ctx.stroke();
+    if(lab){
+      const t=a+'°';
+      ctx.fillStyle='rgba(0,0,0,.6)';  ctx.fillText(t,34,y+0.7);
+      ctx.fillStyle='rgba(231,241,254,.96)'; ctx.fillText(t,33,y);
+    }
+  }
+  ctx.fillStyle='rgba(176,192,214,.85)'; ctx.fillText('alt',10,yTop-2);
+  ctx.restore();
+}
+
+function updateReadout(sm,obsc,mag,totale){
+  const e=S.loc;
+  const lt=new Date(S.t+S.tzOff*60000);
+  $('clock').textContent=fmt2(lt.getUTCHours())+':'+fmt2(lt.getUTCMinutes())+':'+fmt2(lt.getUTCSeconds());
+  const utc=new Date(S.t);
+  $('clocksub').textContent='UT '+fmt2(utc.getUTCHours())+':'+fmt2(utc.getUTCMinutes())+':'+fmt2(utc.getUTCSeconds());
+  let fase='nessuna eclissi';
+  if(totale)fase='TOTALITÀ';
+  else if(obsc>0&&sm.rM<sm.rS&&sm.sep<=sm.rS-sm.rM)fase='ANULARITÀ';
+  else if(obsc>0)fase='parziale';
+  let count='';
+  if(e.total_begin){
+    const d2=(e.total_begin.time.date.getTime()-S.t)/1000, d3=(e.total_end.time.date.getTime()-S.t)/1000;
+    if(d2>0)count=`totalità fra ${tdur(d2)}`;
+    else if(d3>0)count=`fine totalità fra ${tdur(d3)}`;
+    else count='totalità conclusa';
+  }
+  const dur=e.total_begin?tdur((e.total_end.time.ut-e.total_begin.time.ut)*86400):'—';
+  let obscP=obsc*100; if(!totale&&obscP>99.99)obscP=99.99;            // non-totale: non può leggere 100%
+  const obscTxt=obscP.toFixed(obscP>99?2:1)+'%';
+  const magTxt=(!totale&&mag>0.99&&mag<1)?mag.toFixed(4):mag.toFixed(3); // al limite mostra il <1
+  const roHtml=
+   `<div class="r"><span>fase</span><b class="${totale?'tot':''}">${fase}</b></div>
+    <div class="r"><span>magnitudine</span><b>${magTxt}</b></div>
+    <div class="r"><span>oscuramento</span><b>${obscTxt}</b></div>
+    <div class="r"><span>Sole alt/az</span><b>${sm.hS.altitude.toFixed(1)}° / ${sm.hS.azimuth.toFixed(0)}°</b></div>
+    <div class="r"><span>durata totalità</span><b>${dur}</b></div>
+    ${count?`<div class="r" style="margin-top:3px;color:var(--acc)">${count}</div>`:''}
+    <div class="r" style="margin-top:3px;color:var(--dim);font-size:11.5px">zoom ${(60/S.view.fov).toFixed(1)}×</div>`;
+  const ro=$('readout');
+  if(ro._last!==roHtml){ ro._last=roHtml; ro.innerHTML=roHtml; }   // niente rigenerazione DOM se identico
+}
+
+function tdur(s){s=Math.max(0,Math.round(s));const m=Math.floor(s/60);return m>=1?`${m}m ${fmt2(s%60)}s`:`${s}s`;}
+
 function renderScene(){
+  // FRAME IDENTICO -> nessun ridisegno: a simulatore in pausa (tempo, vista,
+  // dimensioni e toggle invariati) l'uso di CPU/GPU scende quasi a zero.
+  // Qualita' invariata: il frame saltato sarebbe stato uguale pixel per pixel.
+  const sh=S.show;
+  const rk=S.t+'|'+S.view.az.toFixed(4)+'|'+S.view.alt.toFixed(4)+'|'+S.view.fov.toFixed(4)
+    +'|'+SKY.W+'x'+SKY.H+'|'+SKY.dpr
+    +'|'+(sh.stelle?1:0)+(sh.cost?1:0)+(sh.nomi?1:0)+(sh.contorni?1:0)+(sh.ombra?1:0)+(sh.glow?1:0)+(sh.grana?1:0)+(sh.shadowmap?1:0)
+    +'|'+S.tzOff+'|'+(S.obs?S.obs.lat+','+S.obs.lon:'')
+    +'|'+(CORONA_READY?1:0)+'|'+(($('baily')&&$('baily').classList.contains('on'))?1:0);
+  if(renderScene._rk===rk) return;
+  renderScene._rk=rk;
   const ctx=SKY.ctx, W=SKY.W, H=SKY.H;
   const time=A.MakeTime(new Date(S.t + (S.skyDt||0)));
   const obs=new A.Observer(S.obs.lat,S.obs.lon,0);
@@ -3964,7 +5439,7 @@ function renderScene(){
   const obsc=obscuration(sm.rS,sm.rM,sm.sep);
   const mag=magnitude(sm.rS,sm.rM,sm.sep);
   const lv=skyLevel(sm.hS.altitude,obsc);
-  const deep=clamp((0.5-lv.g)/0.5,0,1);   // grigio-acciaio/colori di totalità SOLO quando la luce è crollata (≈ grani di Baily)
+  const deep=clamp((0.5-lv.g)/0.5,0,1)*lv.up;   // grigio-acciaio/colori di totalità SOLO quando la luce è crollata (≈ grani di Baily) e SOLO col Sole sopra l'orizzonte: sotto, niente schiarita al massimo
   // totalità ancorata ai CONTATTI (Espenak + lembo LOLA) quando esistono; altrimenti geometrica
   const totale=(S.loc.total_begin&&S.loc.total_end)
       ? (S.t>=S.loc.total_begin.time.date.getTime() && S.t<=S.loc.total_end.time.date.getTime())
@@ -3987,7 +5462,7 @@ function renderScene(){
 
   /* --- glow a 360° vicino alla totalità (solo modalità classica) --- */
   if(S.show.glow && lv.g<0.06 && totaleVicina(obsc)){
-    const a=clamp((0.06-lv.g)/0.06,0,1)*0.85;
+    const a=clamp((0.06-lv.g)/0.06,0,1)*0.85*lv.up;   // glow solo col Sole sopra l'orizzonte: mai piu' chiaro del crepuscolo naturale
     const gh=ctx.createLinearGradient(0,yHor-H*0.16,0,yHor+6);
     gh.addColorStop(0,'rgba(255,120,40,0)');
     gh.addColorStop(0.75,`rgba(255,130,46,${0.45*a})`);
@@ -4464,192 +5939,6 @@ function drawBaily(){
     `<i style="opacity:.8">Grani e geometria identici alla simulazione · profilo Occult LOLA128.bin (LRO/LOLA).</i>`;
 }
 
-/* ---------- stelle/pianeti ---------- */
-function drawConstellations(ctx,time,obs,L){
-  if(L>0.42)return;
-  if(Math.abs(S.t-SKY.constCacheT)>30000){
-    SKY.constCacheT=S.t; SKY.constCache=[];
-    const rotEQ=A.Rotation_EQJ_EQD(time);
-    for(const line of CONSTLINES){
-      const pts=[];
-      for(const [ra,dec] of line){
-        const v=A.RotateVector(rotEQ,A.VectorFromSphere(new A.Spherical(dec,ra*15,1),time));
-        const eq=A.EquatorFromVector(v);
-        const h=A.Horizon(time,obs,eq.ra,eq.dec,'normal');
-        pts.push([h.altitude,h.azimuth]);
-      }
-      SKY.constCache.push(pts);
-    }
-  }
-  const a=clamp((0.42-L)/0.42,0,1);
-  ctx.save();
-  ctx.strokeStyle=`rgba(120,150,205,${0.10+0.24*a})`; ctx.lineWidth=1;
-  for(const pts of SKY.constCache){
-    ctx.beginPath(); let pen=false;
-    for(const [alt,az] of pts){
-      const p=(alt>-1)?proj(az,alt):null;
-      if(p){ if(pen)ctx.lineTo(p[0],p[1]); else {ctx.moveTo(p[0],p[1]);pen=true;} } else pen=false;
-    }
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-function drawStars(ctx,time,obs,L){
-  if(L>0.42)return;
-  if(Math.abs(S.t-SKY.starsCacheT)>30000){
-    SKY.starsCacheT=S.t; SKY.starsCache=[];
-    const rotEQ=A.Rotation_EQJ_EQD(time);
-    for(const [name,ra,dec,m] of STARS){
-      const v=A.RotateVector(rotEQ,A.VectorFromSphere(new A.Spherical(dec,ra*15,1),time));
-      const eq=A.EquatorFromVector(v);
-      const h=A.Horizon(time,obs,eq.ra,eq.dec,'normal');
-      if(h.altitude>-1)SKY.starsCache.push({name,alt:h.altitude,az:h.azimuth,m,pl:false});
-    }
-    for(const [body,name] of PLANETS){
-      try{
-        const eq=A.Equator(body,time,obs,true,true);
-        const h=A.Horizon(time,obs,eq.ra,eq.dec,'normal');
-        if(h.altitude>-1){const il=A.Illumination(body,time);
-          SKY.starsCache.push({name,alt:h.altitude,az:h.azimuth,m:il.mag,pl:true});}
-      }catch(err){}
-    }
-    for(const [body,name] of PLANETS_FAINT){
-      try{
-        const eq=A.Equator(body,time,obs,true,true);
-        const h=A.Horizon(time,obs,eq.ra,eq.dec,'normal');
-        if(h.altitude>-1){const il=A.Illumination(body,time);
-          SKY.starsCache.push({name,alt:h.altitude,az:h.azimuth,m:il.mag,pl:true,tele:true});}
-      }catch(err){}
-    }
-  }
-  const lim=lerp(-3.8,3.5,clamp((0.42-L)/0.42,0,1)); // soglia di visibilità
-  for(const s of SKY.starsCache){
-    if(s.tele){ // Urano/Nettuno: invisibili a occhio nudo → marcatore tratteggiato, solo coi nomi attivi
-      if(!S.show.nomi) continue;
-      const pT=proj(s.az,s.alt); if(!pT) continue;
-      ctx.save();
-      ctx.fillStyle='rgba(150,212,222,0.45)'; ctx.beginPath(); ctx.arc(pT[0],pT[1],1,0,7); ctx.fill();
-      ctx.strokeStyle='rgba(120,205,218,0.78)'; ctx.lineWidth=1; ctx.setLineDash([2,2]);
-      ctx.beginPath(); ctx.arc(pT[0],pT[1],3.4,0,7); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='rgba(170,222,232,0.9)'; ctx.font='italic 10px system-ui'; ctx.fillText(s.name,pT[0]+7,pT[1]-5);
-      ctx.restore(); continue;
-    }
-    if(s.m>lim)continue;
-    const p=proj(s.az,s.alt); if(!p)continue;
-    const vis=clamp((lim-s.m)/2.5,0.15,1);
-    const r=s.pl?2.2:clamp(2.0-s.m*0.45,0.7,2.4);
-    ctx.fillStyle=`rgba(255,255,${s.pl?230:255},${vis})`;
-    ctx.beginPath();ctx.arc(p[0],p[1],r,0,7);ctx.fill();
-    if(S.show.nomi){
-      const lab = s.pl ? (vis>0.4) : (s.m<=2.0 && !s.name.startsWith('HIP'));
-      if(lab){
-        const op = s.pl ? vis*0.95 : clamp(0.5+vis*0.45,0,0.95);
-        ctx.font='11px system-ui';
-        if(s.pl){ // pianeti: rosso corallo leggibile su cielo blu navy, con ombra sottile
-          ctx.fillStyle=`rgba(12,6,8,${op*0.7})`;  ctx.fillText(s.name,p[0]+6.7,p[1]-4.3);
-          ctx.fillStyle=`rgba(255,112,99,${op})`;  ctx.fillText(s.name,p[0]+6,p[1]-5);
-        } else {
-          ctx.fillStyle=`rgba(208,222,244,${op})`; ctx.fillText(s.name,p[0]+6,p[1]-5);
-        }
-      }
-    }
-  }
-}
-
-/* ---------- terreno, bussola ---------- */
-function drawGround(ctx,yHor,L){
-  const W=SKY.W,H=SKY.H;
-  if(yHor>H+2)return;
-  const y=Math.max(0,Math.round(yHor));
-  const amb=clamp(L,0.004,1);
-  // terreno PIATTO a tinta unita (niente profilo ondulato)
-  ctx.fillStyle=`rgb(${(amb*30)|0},${(amb*36)|0},${(amb*27)|0})`;
-  ctx.fillRect(0,y,W,H-y);
-  // linea d'orizzonte netta e orizzontale
-  ctx.strokeStyle=`rgba(${(amb*120+28)|0},${(amb*140+34)|0},${(amb*120+28)|0},0.9)`;
-  ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(0,y+0.75);ctx.lineTo(W,y+0.75);ctx.stroke();
-}
-function drawAltScale(ctx){
-  // scala dell'altezza (gradi sull'orizzonte) sul bordo sinistro, ADATTIVA allo zoom
-  const W=SKY.W,H=SKY.H;
-  const yTop=54, yBot=H-110;                         // banda libera tra barra alta e timeline
-  if(yBot-yTop<46) return;
-  const p0=proj(S.view.az,S.view.alt), p1=proj(S.view.az,S.view.alt+1);
-  if(!p0||!p1) return;
-  const dyDeg=Math.abs(p1[1]-p0[1])||1;              // pixel per grado al centro
-  const steps=[1,2,5,10,15,30,45];
-  let step=steps[steps.length-1];
-  for(const s of steps){ if(s*dyDeg>=52){ step=s; break; } }
-  const minor=(step>=10)?step/2:step;
-  ctx.save();
-  // striscia di fondo per leggibilità su qualunque cielo
-  const bg=ctx.createLinearGradient(0,0,54,0);
-  bg.addColorStop(0,'rgba(8,12,19,0.60)'); bg.addColorStop(1,'rgba(8,12,19,0)');
-  ctx.fillStyle=bg; ctx.fillRect(0,yTop-12,54,(yBot-yTop)+24);
-  // asse verticale
-  ctx.strokeStyle='rgba(200,214,236,.5)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(20,yTop); ctx.lineTo(20,yBot); ctx.stroke();
-  ctx.font='600 11px system-ui'; ctx.textAlign='left'; ctx.textBaseline='middle';
-  for(let alt=0; alt<=90.0001; alt+=minor){
-    const a=Math.round(alt);
-    const p=proj(S.view.az,a); if(!p) continue;
-    const y=p[1]; if(y<yTop||y>yBot) continue;
-    const lab=(a%step===0);
-    ctx.strokeStyle='rgba(208,221,240,'+(lab?0.78:0.4)+')'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(20,y); ctx.lineTo(20+(lab?9:5),y); ctx.stroke();
-    if(lab){
-      const t=a+'°';
-      ctx.fillStyle='rgba(0,0,0,.6)';  ctx.fillText(t,34,y+0.7);
-      ctx.fillStyle='rgba(231,241,254,.96)'; ctx.fillText(t,33,y);
-    }
-  }
-  ctx.fillStyle='rgba(176,192,214,.85)'; ctx.fillText('alt',10,yTop-2);
-  ctx.restore();
-}
-function drawCompass(ctx){
-  const dirs=[['N',0],['NE',45],['E',90],['SE',135],['S',180],['SO',225],['O',270],['NO',315]];
-  ctx.font='600 12px system-ui';ctx.textAlign='center';
-  for(const [lab,az] of dirs){
-    const p=proj(az,0.4); if(!p||p[1]>SKY.H-6||p[1]<0)continue;
-    ctx.fillStyle='rgba(230,238,248,.75)';
-    ctx.fillText(lab,p[0],Math.min(p[1]+16,SKY.H-8));
-  }
-  ctx.textAlign='left';
-}
-
-/* ---------- readout ---------- */
-function updateReadout(sm,obsc,mag,totale){
-  const e=S.loc;
-  const lt=new Date(S.t+S.tzOff*60000);
-  $('clock').textContent=fmt2(lt.getUTCHours())+':'+fmt2(lt.getUTCMinutes())+':'+fmt2(lt.getUTCSeconds());
-  const utc=new Date(S.t);
-  $('clocksub').textContent='UT '+fmt2(utc.getUTCHours())+':'+fmt2(utc.getUTCMinutes())+':'+fmt2(utc.getUTCSeconds());
-  let fase='nessuna eclissi';
-  if(totale)fase='TOTALITÀ';
-  else if(obsc>0&&sm.rM<sm.rS&&sm.sep<=sm.rS-sm.rM)fase='ANULARITÀ';
-  else if(obsc>0)fase='parziale';
-  let count='';
-  if(e.total_begin){
-    const d2=(e.total_begin.time.date.getTime()-S.t)/1000, d3=(e.total_end.time.date.getTime()-S.t)/1000;
-    if(d2>0)count=`totalità fra ${tdur(d2)}`;
-    else if(d3>0)count=`fine totalità fra ${tdur(d3)}`;
-    else count='totalità conclusa';
-  }
-  const dur=e.total_begin?tdur((e.total_end.time.ut-e.total_begin.time.ut)*86400):'—';
-  let obscP=obsc*100; if(!totale&&obscP>99.99)obscP=99.99;            // non-totale: non può leggere 100%
-  const obscTxt=obscP.toFixed(obscP>99?2:1)+'%';
-  const magTxt=(!totale&&mag>0.99&&mag<1)?mag.toFixed(4):mag.toFixed(3); // al limite mostra il <1
-  $('readout').innerHTML=
-   `<div class="r"><span>fase</span><b class="${totale?'tot':''}">${fase}</b></div>
-    <div class="r"><span>magnitudine</span><b>${magTxt}</b></div>
-    <div class="r"><span>oscuramento</span><b>${obscTxt}</b></div>
-    <div class="r"><span>Sole alt/az</span><b>${sm.hS.altitude.toFixed(1)}° / ${sm.hS.azimuth.toFixed(0)}°</b></div>
-    <div class="r"><span>durata totalità</span><b>${dur}</b></div>
-    ${count?`<div class="r" style="margin-top:3px;color:var(--acc)">${count}</div>`:''}
-    <div class="r" style="margin-top:3px;color:var(--dim);font-size:11.5px">zoom ${(60/S.view.fov).toFixed(1)}×</div>`;
-}
-function tdur(s){s=Math.max(0,Math.round(s));const m=Math.floor(s/60);return m>=1?`${m}m ${fmt2(s%60)}s`:`${s}s`;}
 /* ---------- avvio ---------- */
 buildCards();
 show('s1');
