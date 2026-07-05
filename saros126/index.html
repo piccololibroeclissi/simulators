@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saros 126 - Cronologia Eclissi Solari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            background-color: #020617; /* Sfondo scuro spaziale */
+            color: #e2e8f0; 
+        }
+        
+        /* Effetto corona solare per le eclissi parziali/anulari */
+        .sun-corona {
+            box-shadow: 0 0 15px 2px rgba(250, 204, 21, 0.3);
+            background-color: #fbbf24;
+        }
+        
+        /* Effetto corona bianca brillante specifica per le eclissi totali/ibride */
+        .sun-corona-totale {
+            box-shadow: 0 0 25px 8px rgba(226, 232, 240, 0.8);
+            background-color: #f8fafc; 
+        }
+
+        /* Piccole animazioni al passaggio del mouse sui riquadri */
+        .eclipse-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .eclipse-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen py-12 px-4 sm:px-6 lg:px-8 font-sans">
+
+    <div class="max-w-2xl mx-auto">
+        <!-- Intestazione della Pagina -->
+        <div class="text-center mb-16">
+            <div class="inline-flex items-center justify-center p-3 bg-indigo-900/30 rounded-full mb-4 text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 mb-4 tracking-tight">
+                Ciclo di Saros 126
+            </h1>
+            <p class="text-lg text-slate-400 max-w-xl mx-auto leading-relaxed">
+                Esplora la cronologia completa delle 72 eclissi solari di questa famiglia. Iniziata al polo sud nel 1179, raggiungerà il suo culmine totale ai giorni nostri (incluso l'evento del 2026), per poi svanire al polo nord nel 2459.
+            </p>
+        </div>
+
+        <!-- Contenitore della Timeline (I riquadri verranno generati qui via JavaScript) -->
+        <div id="timeline-container" class="flex flex-col items-center">
+            <!-- Loading placeholder -->
+            <div class="text-slate-500 animate-pulse flex flex-col items-center gap-3">
+                <div class="w-8 h-8 border-2 border-slate-600 border-t-yellow-400 rounded-full animate-spin"></div>
+                <span>Generazione calcoli orbitali e mappe in corso...</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Array dati estratti fedelmente dal catalogo NASA (GSFC)
+        const eclipses = [
+            { num: 1, date: "1179 Mar 10", type: "P", mag: 0.0536, dur: "" },
+            { num: 2, date: "1197 Mar 20", type: "P", mag: 0.1327, dur: "" },
+            { num: 3, date: "1215 Mar 31", type: "P", mag: 0.2222, dur: "" },
+            { num: 4, date: "1233 Apr 11", type: "P", mag: 0.3278, dur: "" },
+            { num: 5, date: "1251 Apr 22", type: "P", mag: 0.4423, dur: "" },
+            { num: 6, date: "1269 May 02", type: "P", mag: 0.5699, dur: "" },
+            { num: 7, date: "1287 May 14", type: "P", mag: 0.7052, dur: "" },
+            { num: 8, date: "1305 May 24", type: "P", mag: 0.8496, dur: "" },
+            { num: 9, date: "1323 Jun 04", type: "A", mag: 0.9383, dur: "05m59s" },
+            { num: 10, date: "1341 Jun 14", type: "A", mag: 0.9433, dur: "06m25s" },
+            { num: 11, date: "1359 Jun 26", type: "A", mag: 0.9463, dur: "06m30s" },
+            { num: 12, date: "1377 Jul 06", type: "A", mag: 0.9484, dur: "06m24s" },
+            { num: 13, date: "1395 Jul 17", type: "A", mag: 0.9497, dur: "06m12s" },
+            { num: 14, date: "1413 Jul 27", type: "A", mag: 0.9506, dur: "05m58s" },
+            { num: 15, date: "1431 Aug 08", type: "A", mag: 0.9509, dur: "05m45s" },
+            { num: 16, date: "1449 Aug 18", type: "A", mag: 0.9509, dur: "05m35s" },
+            { num: 17, date: "1467 Aug 29", type: "A", mag: 0.9505, dur: "05m29s" },
+            { num: 18, date: "1485 Sep 09", type: "A", mag: 0.9500, dur: "05m26s" },
+            { num: 19, date: "1503 Sep 20", type: "A", mag: 0.9494, dur: "05m27s" },
+            { num: 20, date: "1521 Sep 30", type: "A", mag: 0.9489, dur: "05m30s" },
+            { num: 21, date: "1539 Oct 12", type: "A", mag: 0.9484, dur: "05m35s" },
+            { num: 22, date: "1557 Oct 22", type: "A", mag: 0.9482, dur: "05m40s" },
+            { num: 23, date: "1575 Nov 02", type: "A", mag: 0.9483, dur: "05m44s" },
+            { num: 24, date: "1593 Nov 22", type: "A", mag: 0.9488, dur: "05m46s" },
+            { num: 25, date: "1611 Dec 04", type: "A", mag: 0.9498, dur: "05m44s" },
+            { num: 26, date: "1629 Dec 14", type: "A", mag: 0.9513, dur: "05m38s" },
+            { num: 27, date: "1647 Dec 26", type: "A", mag: 0.9535, dur: "05m25s" },
+            { num: 28, date: "1666 Jan 05", type: "A", mag: 0.9562, dur: "05m07s" },
+            { num: 29, date: "1684 Jan 16", type: "A", mag: 0.9596, dur: "04m43s" },
+            { num: 30, date: "1702 Jan 28", type: "A", mag: 0.9636, dur: "04m14s" },
+            { num: 31, date: "1720 Feb 08", type: "A", mag: 0.9681, dur: "03m40s" },
+            { num: 32, date: "1738 Feb 18", type: "A", mag: 0.9732, dur: "03m03s" },
+            { num: 33, date: "1756 Mar 01", type: "A", mag: 0.9787, dur: "02m24s" },
+            { num: 34, date: "1774 Mar 12", type: "A", mag: 0.9845, dur: "01m43s" },
+            { num: 35, date: "1792 Mar 22", type: "A", mag: 0.9905, dur: "01m02s" },
+            { num: 36, date: "1810 Apr 04", type: "A", mag: 0.9967, dur: "00m21s" },
+            { num: 37, date: "1828 Apr 14", type: "H", mag: 1.0029, dur: "00m18s" },
+            { num: 38, date: "1846 Apr 25", type: "H", mag: 1.0088, dur: "00m53s" },
+            { num: 39, date: "1864 May 06", type: "H", mag: 1.0146, dur: "01m25s" },
+            { num: 40, date: "1882 May 17", type: "T", mag: 1.0200, dur: "01m50s" },
+            { num: 41, date: "1900 May 28", type: "T", mag: 1.0249, dur: "02m10s" },
+            { num: 42, date: "1918 Jun 08", type: "T", mag: 1.0292, dur: "02m23s" },
+            { num: 43, date: "1936 Jun 19", type: "T", mag: 1.0329, dur: "02m31s" },
+            { num: 44, date: "1954 Jun 30", type: "T", mag: 1.0357, dur: "02m35s" },
+            { num: 45, date: "1972 Jul 10", type: "T", mag: 1.0379, dur: "02m36s" },
+            { num: 46, date: "1990 Jul 22", type: "T", mag: 1.0391, dur: "02m33s" },
+            { num: 47, date: "2008 Aug 01", type: "T", mag: 1.0394, dur: "02m27s" },
+            { num: 48, date: "2026 Aug 12", type: "T", mag: 1.0386, dur: "02m18s" },
+            { num: 49, date: "2044 Aug 23", type: "T", mag: 1.0364, dur: "02m04s" },
+            { num: 50, date: "2062 Sep 03", type: "P", mag: 0.9749, dur: "" },
+            { num: 51, date: "2080 Sep 13", type: "P", mag: 0.8743, dur: "" },
+            { num: 52, date: "2098 Sep 25", type: "P", mag: 0.7871, dur: "" },
+            { num: 53, date: "2116 Oct 06", type: "P", mag: 0.7105, dur: "" },
+            { num: 54, date: "2134 Oct 17", type: "P", mag: 0.6458, dur: "" },
+            { num: 55, date: "2152 Oct 28", type: "P", mag: 0.5926, dur: "" },
+            { num: 56, date: "2170 Nov 08", type: "P", mag: 0.5524, dur: "" },
+            { num: 57, date: "2188 Nov 18", type: "P", mag: 0.5212, dur: "" },
+            { num: 58, date: "2206 Dec 01", type: "P", mag: 0.4985, dur: "" },
+            { num: 59, date: "2224 Dec 11", type: "P", mag: 0.4834, dur: "" },
+            { num: 60, date: "2242 Dec 22", type: "P", mag: 0.4750, dur: "" },
+            { num: 61, date: "2261 Jan 02", type: "P", mag: 0.4679, dur: "" },
+            { num: 62, date: "2279 Jan 13", type: "P", mag: 0.4630, dur: "" },
+            { num: 63, date: "2297 Jan 23", type: "P", mag: 0.4550, dur: "" },
+            { num: 64, date: "2315 Feb 05", type: "P", mag: 0.4453, dur: "" },
+            { num: 65, date: "2333 Feb 15", type: "P", mag: 0.4270, dur: "" },
+            { num: 66, date: "2351 Feb 27", type: "P", mag: 0.4037, dur: "" },
+            { num: 67, date: "2369 Mar 09", type: "P", mag: 0.3686, dur: "" },
+            { num: 68, date: "2387 Mar 20", type: "P", mag: 0.3241, dur: "" },
+            { num: 69, date: "2405 Mar 31", type: "P", mag: 0.2654, dur: "" },
+            { num: 70, date: "2423 Apr 11", type: "P", mag: 0.1970, dur: "" },
+            { num: 71, date: "2441 Apr 21", type: "P", mag: 0.1149, dur: "" },
+            { num: 72, date: "2459 May 03", type: "P", mag: 0.0214, dur: "" }
+        ];
+
+        // Numeri di catalogo (Seq. Num.) associati ad ogni eclisse per ricavare la mappa NASA
+        const catNums = [
+            7562, 7607, 7652, 7698, 7743, 7787, 7830, 7873, 7915, 7956,
+            7997, 8038, 8079, 8119, 8159, 8199, 8239, 8279, 8320, 8362,
+            8403, 8444, 8485, 8526, 8566, 8610, 8655, 8701, 8747, 8792,
+            8837, 8883, 8929, 8974, 9020, 9065, 9110, 9154, 9197, 9239,
+            9281, 9324, 9367, 9408, 9448, 9487, 9526, 9566, 9606, 9647,
+            9688, 9729, 9770, 9811, 9853, 9895, 9939, 9984, 10027, 10071,
+            10116, 10161, 10207, 10252, 10297, 10343, 10388, 10432, 10476,
+            10519, 10562, 10605
+        ];
+
+        // Associa il numero di catalogo all'oggetto eclisse
+        eclipses.forEach((ecl, i) => ecl.cat = catNums[i]);
+
+        // Mappature per traduzioni e stili
+        const monthMap = {
+            'Jan': 'Gennaio', 'Feb': 'Febbraio', 'Mar': 'Marzo',
+            'Apr': 'Aprile', 'May': 'Maggio', 'Jun': 'Giugno',
+            'Jul': 'Luglio', 'Aug': 'Agosto', 'Sep': 'Settembre',
+            'Oct': 'Ottobre', 'Nov': 'Novembre', 'Dec': 'Dicembre'
+        };
+
+        const monthMapNum = {
+            'Jan': '01', 'Feb': '02', 'Mar': '03',
+            'Apr': '04', 'May': '05', 'Jun': '06',
+            'Jul': '07', 'Aug': '08', 'Sep': '09',
+            'Oct': '10', 'Nov': '11', 'Dec': '12'
+        };
+
+        const typeMap = {
+            'P': 'Parziale',
+            'A': 'Anulare',
+            'H': 'Ibrida',
+            'T': 'Totale'
+        };
+
+        const typeColors = {
+            'P': 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20',
+            'A': 'text-orange-400 bg-orange-400/10 border-orange-400/20',
+            'H': 'text-fuchsia-400 bg-fuchsia-400/10 border-fuchsia-400/20',
+            'T': 'text-yellow-300 bg-yellow-300/10 border-yellow-300/20'
+        };
+
+        // Funzioni di formattazione
+        function formatDate(dateStr) {
+            const parts = dateStr.split(' ');
+            return `${parts[2]} ${monthMap[parts[1]]} ${parts[0]}`;
+        }
+
+        function formatDur(durStr) {
+            if (!durStr) return "";
+            return durStr.replace('m', ' min e ').replace('s', ' sec');
+        }
+
+        // Calcola l'URL dell'immagine dal server NASA in base alla logica delle loro directory
+        function getNasaMapUrl(catNum, dateStr) {
+            const folderLower = Math.floor((catNum - 1) / 1000) * 1000 + 1;
+            const folderUpper = Math.ceil(catNum / 1000) * 1000;
+            const folder = String(folderLower).padStart(5, '0') + "-" + String(folderUpper).padStart(5, '0');
+            
+            const parts = dateStr.split(' ');
+            const yyyy = parts[0];
+            const mm = monthMapNum[parts[1]];
+            const dd = parts[2].padStart(2, '0');
+            
+            return `https://eclipse.gsfc.nasa.gov/5MCSEmap/${folder}/${catNum}-${yyyy}-${mm}-${dd}.gif`;
+
+		}
+
+        // Generazione del layout al caricamento della pagina
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('timeline-container');
+            container.innerHTML = ''; // Rimuovi il testo di loading
+
+            eclipses.forEach((ecl, index) => {
+                // Calcola la percentuale visiva
+                const percNum = (ecl.mag > 1) ? 100 : (ecl.mag * 100);
+                const percText = percNum.toFixed(1) + "%";
+                
+                // Generazione dinamica URL immagine NASA
+                const nasaImgUrl = getNasaMapUrl(ecl.cat, ecl.date);
+                
+                // Logica geometrica per il disegno dell'ombra Lunare sul Sole
+                let moonStyle = "";
+                let sunClass = "sun-corona";
+                
+                if (ecl.type === 'P') {
+                    // FIX CURVATURA: La luna è un cerchio che trasla proporzionalmente
+                    // Se mag=0 è fuori (100%), se mag=1 è centrato (0%)
+                    const offset = 100 - (ecl.mag * 100);
+                    moonStyle = `width: 100%; height: 100%; border-radius: 50%; top: 0; left: ${offset}%; transition: all 0.5s ease;`;
+                } else if (ecl.type === 'A') {
+                    // Anulare: la Luna è un cerchio perfetto al centro, ma di raggio minore
+                    const scale = (ecl.mag * 100).toFixed(1);
+                    moonStyle = `width: ${scale}%; height: ${scale}%; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: all 0.5s ease;`;
+                } else if (ecl.type === 'T' || ecl.type === 'H') {
+                    // Totale o Ibrida: La Luna è grande uguale (o un pelo di più) e copre tutto
+                    moonStyle = `width: 102%; height: 102%; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: all 0.5s ease;`;
+                    sunClass = "sun-corona-totale"; // Attiva la corona bianca
+                }
+
+                // Evidenziazione speciale per la grande Eclissi Europea del 2026
+                const is2026 = (ecl.num === 48);
+                const borderClass = is2026 
+                    ? "border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.25)]" 
+                    : "border-slate-800 shadow-xl border-t-slate-700";
+
+                // Costruisci il Riquadro (Card)
+                const card = document.createElement('div');
+                card.className = `eclipse-card bg-slate-900 rounded-2xl p-6 md:p-8 border ${borderClass} w-full max-w-xl relative z-10`;
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-bold ${is2026 ? 'text-yellow-400' : 'text-indigo-400'} uppercase tracking-widest bg-slate-950 px-2 py-1 rounded-md border border-slate-800">
+                                    Cat NASA #${ecl.cat}
+                                </span>
+                                ${is2026 ? '<span class="text-xs font-bold text-slate-900 bg-yellow-400 px-2 py-1 rounded-md uppercase animate-pulse">Prossima in Europa</span>' : ''}
+                            </div>
+                            <h3 class="text-2xl md:text-3xl font-bold text-white mt-2">${formatDate(ecl.date)}</h3>
+                        </div>
+                        
+                        <!-- Rappresentazione visuale accurata dell'oscuramento -->
+                        <div class="relative w-16 h-16 md:w-20 md:h-20 rounded-full ${sunClass} overflow-hidden flex-shrink-0" title="Rappresentazione Sole/Luna">
+                            <div class="absolute bg-slate-950" style="${moonStyle}"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <div class="rounded-xl p-3 md:p-4 border ${typeColors[ecl.type]}">
+                            <div class="text-slate-400 text-[10px] md:text-xs uppercase tracking-wide mb-1">Tipo di Eclisse</div>
+                            <div class="font-bold text-base md:text-lg">${typeMap[ecl.type]}</div>
+                        </div>
+                        <div class="bg-slate-950 rounded-xl p-3 md:p-4 border border-slate-800">
+                            <div class="text-slate-400 text-[10px] md:text-xs uppercase tracking-wide mb-1">Sole Oscurato</div>
+                            <div class="text-white font-bold text-base md:text-lg">${percText}</div>
+                        </div>
+                        ${ecl.dur ? `
+                        <div class="bg-slate-950 rounded-xl p-3 md:p-4 border border-slate-800 col-span-2 flex justify-between items-center">
+                            <div class="text-slate-400 text-[10px] md:text-xs uppercase tracking-wide">Durata Fase Centrale (Max)</div>
+                            <div class="text-white font-bold text-base md:text-lg">${formatDur(ecl.dur)}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- IMMAGINE DELLA MAPPA NASA -->
+                    <div class="mt-6 border-t border-slate-800/80 pt-5">
+                        <div class="text-slate-400 text-[10px] md:text-xs uppercase tracking-wide mb-3 text-center font-semibold">Tracciato Geografico (Archivio NASA)</div>
+                        <div class="bg-slate-200/5 rounded-xl overflow-hidden border border-slate-700/50 flex justify-center p-2 relative map-container min-h-[150px]">
+                            <!-- Loader -->
+                            <div class="absolute inset-0 flex items-center justify-center -z-10">
+                                <div class="w-5 h-5 border-2 border-slate-600 border-t-slate-300 rounded-full animate-spin"></div>
+                            </div>
+                            <!-- Immagine (se la NASA non la trova o dà 404, il riquadro intero si nasconde elegantemente) -->
+                            <img src="${nasaImgUrl}" alt="Mappa Eclisse" class="w-full h-auto rounded-lg object-contain transition-opacity duration-500" onload="this.style.opacity=1" style="opacity:0;" onerror="this.closest('.mt-6').style.display='none';">
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+
+                // Aggiungi il separatore temporale del Ciclo di Saros tra le eclissi
+                if (index < eclipses.length - 1) {
+                    const separator = document.createElement('div');
+                    separator.className = "flex flex-col items-center my-0 relative w-full group";
+                    separator.innerHTML = `
+                        <div class="w-px h-12 md:h-16 bg-gradient-to-b from-indigo-500/50 to-indigo-900/10"></div>
+                        <div class="bg-indigo-950/80 border border-indigo-500/40 text-indigo-200 text-xs md:text-sm px-4 md:px-5 py-2 md:py-2.5 rounded-full z-10 flex items-center gap-2 shadow-lg backdrop-blur-md transition-all group-hover:bg-indigo-900 group-hover:border-indigo-400">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>Sono passati <strong>18 anni, 11 giorni e 8h</strong></span>
+                        </div>
+                        <div class="w-px h-12 md:h-16 bg-gradient-to-t from-indigo-500/50 to-indigo-900/10"></div>
+                    `;
+                    container.appendChild(separator);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
